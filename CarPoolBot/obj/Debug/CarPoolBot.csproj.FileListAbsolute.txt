@@ -1,0 +1,39 @@
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Bot Application1.dll.config
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Bot Application1.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Bot Application1.pdb
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Autofac.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Chronic.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Microsoft.Bot.Builder.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Microsoft.Bot.Connector.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Microsoft.IdentityModel.Protocol.Extensions.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Microsoft.Rest.ClientRuntime.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Microsoft.WindowsAzure.Configuration.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Newtonsoft.Json.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\System.IdentityModel.Tokens.Jwt.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\System.Net.Http.Formatting.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\System.Web.Http.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\System.Web.Http.WebHost.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Autofac.xml
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Microsoft.Bot.Builder.xml
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Microsoft.Bot.Connector.xml
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Microsoft.IdentityModel.Protocol.Extensions.pdb
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Microsoft.IdentityModel.Protocol.Extensions.xml
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Microsoft.Rest.ClientRuntime.xml
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Microsoft.WindowsAzure.Configuration.xml
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\Newtonsoft.Json.xml
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\System.IdentityModel.Tokens.Jwt.pdb
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\System.IdentityModel.Tokens.Jwt.xml
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\System.Net.Http.Formatting.xml
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\System.Web.Http.xml
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\System.Web.Http.WebHost.xml
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\ar\Microsoft.Bot.Builder.resources.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\en\Microsoft.Bot.Builder.resources.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\es\Microsoft.Bot.Builder.resources.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\fa\Microsoft.Bot.Builder.resources.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\fr\Microsoft.Bot.Builder.resources.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\ja\Microsoft.Bot.Builder.resources.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\ru\Microsoft.Bot.Builder.resources.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\bin\zh-hans\Microsoft.Bot.Builder.resources.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\obj\Debug\CarPoolBot.csprojResolveAssemblyReference.cache
+D:\Study\Projects\CarPoolBot\CarPoolBot\obj\Debug\Bot Application1.dll
+D:\Study\Projects\CarPoolBot\CarPoolBot\obj\Debug\Bot Application1.pdb
