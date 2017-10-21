@@ -353,7 +353,7 @@ namespace EngineTestTool
         {
             CheckForIllegalCrossThreadCalls = false;
             PoolingEngine.Instance.SetRequestCallBack(DisplayTrip);
-            PoolingEngine.Instance.QueuePoolingRequest(null);
+            PoolingEngine.Instance.QueuePoolingRequest();
             UpdateStateDisplay();
 
             AddMockPoolersToTrip();
@@ -364,11 +364,7 @@ namespace EngineTestTool
             await Task.Factory.StartNew(() =>
             {
                 //todo:remove this logic, implement some way to call back when processing is done for the commuter
-                while (PoolingEngine.Instance.Status != EngineStatus.Completed)
-                {
-                    DisplayState();
-                    Thread.Sleep(100);
-                }
+                
                 DisplayState();
 
                 //foreach (var request in CommutersRequest)
@@ -440,7 +436,7 @@ namespace EngineTestTool
         {
             ClearMap();
             CheckForIllegalCrossThreadCalls = false;
-            List<PointLatLng> points = ConvertCoordinatesToPoint(PoolingEngine.Instance.GetCommuterRoute(request));
+            List<PointLatLng> points = ConvertCoordinatesToPoint(PoolingEngine.Instance.GetCommuterRoute(request).Path.ToList());
             if (points.Count == 0)
                 return;
 

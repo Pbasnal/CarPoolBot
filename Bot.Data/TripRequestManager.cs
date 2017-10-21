@@ -95,12 +95,15 @@ namespace Bot.Data
 
             foreach (var commuterRequestList in Commuters)
             {
-                foreach (var request in commuterRequestList.Value)
-                {
-                    if (request.Status != RequestStatus.Initialized && request.Status != RequestStatus.Waiting)
-                        continue;
-                    waitingCommuters.Add(request);
-                }
+                waitingCommuters = commuterRequestList.Value
+                    .Where(r => r.Status == RequestStatus.Initialized || r.Status == RequestStatus.Waiting)
+                    .ToList();
+                //foreach (var request in commuterRequestList.Value)
+                //{
+                //    if (request.Status != RequestStatus.Initialized && request.Status != RequestStatus.Waiting)
+                //        continue;
+                //    waitingCommuters.Add(request);
+                //}
             }
             return waitingCommuters;
         }

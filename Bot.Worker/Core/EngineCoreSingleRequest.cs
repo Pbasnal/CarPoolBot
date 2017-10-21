@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace Bot.Worker.Core
 {
-    public class EngineCore
+    public class EngineCoreSingleRequest
     {
         private EngineState _engineState;
 

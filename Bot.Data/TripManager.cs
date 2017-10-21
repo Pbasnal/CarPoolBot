@@ -25,7 +25,7 @@ namespace Bot.Data
             { }
         }
 
-        public IDictionary<string, Trip> CarPoolTrip = new Dictionary<string, Trip>();
+        public IDictionary<Guid, Trip> CarPoolTrip = new Dictionary<Guid, Trip>();
 
         public Trip StartNewTrip(Commuter owner)
         {

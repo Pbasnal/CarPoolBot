@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Bot.Worker
 {
     //todo: handle callbacks 
-    public class PoolingEngine
+    public class PoolingEngineSingleRequest
     {
         private static PoolingEngine _instance;
         private Queue<ProcessNewRequest> _newProcessRequests;

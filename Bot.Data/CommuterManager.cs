@@ -6,16 +6,16 @@ namespace Bot.Data
     [Serializable]
     public class CommuterManager
     {
-        private static IDictionary<string, Commuter> commuters = null;
+        private static IDictionary<Guid, Commuter> commuters = null;
 
         private CommuterManager()
         { }
 
-        public static IDictionary<string, Commuter> CommutersList {
+        public static IDictionary<Guid, Commuter> CommutersList {
             get
             {
                 if (commuters == null)
-                    commuters = new Dictionary<string, Commuter>();
+                    commuters = new Dictionary<Guid, Commuter>();
                 return commuters;
             }
             set
@@ -33,7 +33,7 @@ namespace Bot.Data
             commuters.Add(commuter.CommuterId, commuter);
         }
 
-        public static Commuter GetCommuter(string commuterId)
+        public static Commuter GetCommuter(Guid commuterId)
         {
             if (commuters == null || commuters.Count == 0)
                 return null;

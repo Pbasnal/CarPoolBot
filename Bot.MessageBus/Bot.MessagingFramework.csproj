@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B1E431A0-4960-4E9F-8575-94915738A1BA}</ProjectGuid>
+    <ProjectGuid>{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bot.Worker</RootNamespace>
-    <AssemblyName>Bot.Worker</AssemblyName>
+    <RootNamespace>Bot.MessageBus</RootNamespace>
+    <AssemblyName>Bot.MessageBus</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,45 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actor.cs" />
-    <Compile Include="Core\EngineCoreSingleRequest.cs" />
-    <Compile Include="Core\EngineCore.cs" />
-    <Compile Include="Core\EngineCoreStatus.cs" />
-    <Compile Include="Messages\ProcessTripOwnerRequestMessage.cs" />
-    <Compile Include="Messages\VehicleOwnerAddedToStateMessage.cs" />
-    <Compile Include="Messages\PoolerAddedToStateMessage.cs" />
-    <Compile Include="Models\Route.cs" />
-    <Compile Include="Models\TripRequestInProcess.cs" />
-    <Compile Include="Models\TripRequestStatus.cs" />
-    <Compile Include="PoolingEngineSingleRequest.cs" />
-    <Compile Include="Requests\ProcessNewRequestsMessage.cs" />
-    <Compile Include="Models\CommuterRequestProcessModel.cs" />
-    <Compile Include="PoolingEngine.cs" />
-    <Compile Include="Models\EngineState.cs" />
+    <Compile Include="IMessageHandler.cs" />
+    <Compile Include="MessageBase.cs" />
+    <Compile Include="MessageBus.cs" />
+    <Compile Include="MessageHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Bot.Data\Bot.Data.csproj">
-      <Project>{BA7192EA-7899-412D-A408-D005CA0CB899}</Project>
-      <Name>Bot.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Bot.External\Bot.External.csproj">
-      <Project>{5811a0bf-d14b-4ee5-881a-06d71b5332d8}</Project>
-      <Name>Bot.External</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Bot.MessageBus\Bot.MessagingFramework.csproj">
-      <Project>{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}</Project>
-      <Name>Bot.MessagingFramework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Bot.Models\Bot.Models.csproj">
-      <Project>{11E1325C-C459-45C9-A5BF-BABD9D7FE201}</Project>
-      <Name>Bot.Models</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
