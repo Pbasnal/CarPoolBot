@@ -352,7 +352,7 @@ namespace EngineTestTool
         private void start_Click(object sender, EventArgs e)
         {
             CheckForIllegalCrossThreadCalls = false;
-            PoolingEngine.Instance.SetRequestCallBack(DisplayTrip);
+            //PoolingEngine.Instance.SetRequestCallBack(DisplayTrip);
             PoolingEngine.Instance.QueuePoolingRequest();
             UpdateStateDisplay();
 

@@ -89,6 +89,7 @@ namespace Bot.Data
         {
             return Commuters;
         }
+
         public static IList<TripRequest> GetWaitingCommuterRequests()
         {
             var waitingCommuters = new List<TripRequest>();

@@ -1,6 +1,6 @@
 ﻿namespace Bot.MessagingFramework
 {
-    public interface IMessageHandler
+    internal interface IMessageHandler
     {
         int MaxRetryCount { get; set; }
         int RetryCount { get; set; }

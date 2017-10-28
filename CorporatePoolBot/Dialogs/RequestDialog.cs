@@ -94,7 +94,7 @@ namespace CorporatePoolBot.Dialogs
         {
             TripRequest request = new TripRequest
             {
-                Commuter = CommuterManager.GetCommuter(activity.From.Id),
+                Commuter = CommuterManager.GetCommuter(new Guid(activity.From.Id)),
                 GoingHow = this.GoingHow,
                 GoingTo = this.GoingTo,
                 RequestTime = DateTime.UtcNow,

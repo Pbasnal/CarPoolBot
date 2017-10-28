@@ -12,16 +12,29 @@ namespace Bot.Worker.Models
     public class EngineState
     {
         private object baton = new object();
+        private EngineState _instance;
 
         public IDictionary<Guid, CommuterRequestProcessModel> CommuterRequestProcessTable { get; private set; }
 
         public IDictionary<Guid, Guid> PoolerCommuterMapping { get; private set; }
         public IDictionary<Guid, Trip> OngoingTrips { get; private set; }
 
-        public EngineState()
+        private EngineState()
         {
             CommuterRequestProcessTable = new Dictionary<Guid, CommuterRequestProcessModel>();
             PoolerCommuterMapping = new Dictionary<Guid, Guid>();
+        }
+
+        public EngineState Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new EngineState();
+                }
+                return _instance;
+            }
         }
 
         public MethodResponse AddCommuterToState(TripRequest tripRequest, IList<Coordinate> route)
@@ -45,7 +58,6 @@ namespace Bot.Worker.Models
                         new CommuterRequestProcessModel(trip, route));
                 }
                 return new MethodResponse(true);
-
             }
             catch (Exception ex)
             {

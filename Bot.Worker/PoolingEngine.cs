@@ -57,7 +57,8 @@ namespace Bot.Worker
                 if (methodResponse.ResponseInfo.ResponseCode != ResponseCodes.TripDidNotStart)
                     methodResponse = _core.StartTrip(commuterRequest);
                 if (methodResponse.ResponseInfo.ResponseCode == ResponseCodes.TripStarted)
-                    RequestCompleteCallback(commuterRequest);
+                { //RequestCompleteCallback(commuterRequest); 
+                }
             });
         }
 

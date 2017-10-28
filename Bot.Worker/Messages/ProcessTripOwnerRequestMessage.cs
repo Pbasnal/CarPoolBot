@@ -5,6 +5,6 @@ namespace Bot.Worker.Messages
 {
     public class ProcessTripOwnerRequestMessage : MessageBase
     {
-        public Commuter Commuter { get; set; }
+        public TripRequest TripOwnerRequest { get; set; }
     }
 }

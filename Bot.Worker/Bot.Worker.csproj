@@ -41,16 +41,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actor.cs" />
+    <Compile Include="AddPoolersToTrip.cs" />
     <Compile Include="Core\EngineCoreSingleRequest.cs" />
     <Compile Include="Core\EngineCore.cs" />
     <Compile Include="Core\EngineCoreStatus.cs" />
+    <Compile Include="EndTheTrip.cs" />
+    <Compile Include="GetPoolersInTrip.cs" />
+    <Compile Include="GetTripRoute.cs" />
+    <Compile Include="Messages\AddPoolersToTripMessage.cs" />
+    <Compile Include="Messages\EndTripMessage.cs" />
+    <Compile Include="Messages\GetPoolersInTripMessage.cs" />
+    <Compile Include="Messages\GetTripRouteMessage.cs" />
+    <Compile Include="Messages\PoolerAddToTripMessage.cs" />
     <Compile Include="Messages\ProcessTripOwnerRequestMessage.cs" />
+    <Compile Include="Messages\TripStartedMessage.cs" />
     <Compile Include="Messages\VehicleOwnerAddedToStateMessage.cs" />
     <Compile Include="Messages\PoolerAddedToStateMessage.cs" />
     <Compile Include="Models\Route.cs" />
     <Compile Include="Models\TripRequestInProcess.cs" />
     <Compile Include="Models\TripRequestStatus.cs" />
-    <Compile Include="PoolingEngineSingleRequest.cs" />
+    <Compile Include="ProcessTripOwnerRequest.cs" />
     <Compile Include="Requests\ProcessNewRequestsMessage.cs" />
     <Compile Include="Models\CommuterRequestProcessModel.cs" />
     <Compile Include="PoolingEngine.cs" />
