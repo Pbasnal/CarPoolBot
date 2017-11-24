@@ -10,6 +10,11 @@ namespace Bot.Worker
     {
         private EngineCoreSingleRequest _core;
 
+        public ProcessTripOwnerRequest()
+        {
+            _core = new EngineCoreSingleRequest();
+        }
+
         public override void Handle(ProcessTripOwnerRequestMessage message)
         {
             try

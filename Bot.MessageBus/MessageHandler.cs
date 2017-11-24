@@ -16,7 +16,6 @@ namespace Bot.MessagingFramework
         private ManualResetEvent _mre;
         private bool _shouldWork = true;
 
-
         public MessageHandler()
         {
             MaxRetryCount = 3;
@@ -28,6 +27,7 @@ namespace Bot.MessagingFramework
             MessageBus.Instance.RegisterHandler(this, typeof(T).FullName);
 
             var runAsynchThread = new Thread(new ThreadStart(RunAsync));
+            runAsynchThread.IsBackground = true;
             runAsynchThread.Start();
         }
 
@@ -41,20 +41,22 @@ namespace Bot.MessagingFramework
             lock (_baton)
             {
                 _messageQueue.Enqueue(message as T);
+                _mre.Set();
             }
-
-            _mre.Set();
         }
 
         private void RunAsync()
         {
             while (_shouldWork)
             {
-                if (_messageQueue.Count <= 0)
+                lock (_baton)
                 {
-                    _mre.Reset();
-                    _mre.WaitOne();
+                    if (_messageQueue.Count <= 0)
+                    {
+                        _mre.Reset();
+                    }
                 }
+                _mre.WaitOne();
                 if (!_shouldWork)
                 {
                     break;
@@ -78,6 +80,7 @@ namespace Bot.MessagingFramework
                 try
                 {
                     Handle(message);
+                    break;
                 }
                 catch (Exception ex)
                 {
@@ -87,6 +90,7 @@ namespace Bot.MessagingFramework
                     }
                 }
             }
+            RetryCount = 0;
         }
 
         public void StopWorking()

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace Bot.MessagingFramework
 {
@@ -29,7 +29,8 @@ namespace Bot.MessagingFramework
         {
             if (messageHandlerTable.ContainsKey(messageType))
                 messageHandlerTable[messageType].Add(handler);
-            messageHandlerTable.Add(messageType, new List<IMessageHandler> { handler });
+            else
+                messageHandlerTable.Add(messageType, new List<IMessageHandler> { handler });
         }
 
         public void Publish(MessageBase message)

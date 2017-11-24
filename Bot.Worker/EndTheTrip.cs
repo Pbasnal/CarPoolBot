@@ -9,6 +9,11 @@ namespace Bot.Worker
     {
         private EngineCoreSingleRequest _core;
 
+        public EndTheTrip()
+        {
+            _core = new EngineCoreSingleRequest();
+        }
+
         public override void Handle(EndTripMessage message)
         {
             try

@@ -9,6 +9,11 @@ namespace Bot.Worker
     {
         EngineCoreSingleRequest _core = new EngineCoreSingleRequest();
 
+        public GetPoolersInTrip()
+        {
+            _core = new EngineCoreSingleRequest();
+        }
+
         public override void Handle(GetPoolersInTripMessage message)
         {
             try

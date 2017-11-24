@@ -1,4 +1,5 @@
 ﻿using Bot.Data;
+using Bot.Data.Models;
 using Bot.Worker.Models;
 using System;
 using System.Collections.Generic;
@@ -193,7 +194,7 @@ namespace EngineTestTool
         {
             Commuter commuter = new Commuter
             {
-                CommuterId = Guid.NewGuid().ToString(),
+                CommuterId = Guid.NewGuid(),
                 CommuterName = "TestCommuter" + commuterId++,
                 HomeCoordinate = new Coordinate
                 {

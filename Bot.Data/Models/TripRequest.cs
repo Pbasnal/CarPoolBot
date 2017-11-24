@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bot.Data
+namespace Bot.Data.Models
 {
     public class TripRequest
     {

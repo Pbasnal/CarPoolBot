@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using Bot.Worker;
 using System.Web.Http;
-using System.Web.Routing;
 
 namespace CorporatePoolBot
 {
@@ -12,6 +8,7 @@ namespace CorporatePoolBot
         protected void Application_Start()
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
+            HandlerInitializer.CreateAllHandlers();
         }
     }
 }

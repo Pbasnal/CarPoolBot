@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Bot.Connector;
 using System.Threading;
+using Bot.External;
 
 namespace CorporatePoolBot.Dialogs
 {
@@ -10,9 +11,11 @@ namespace CorporatePoolBot.Dialogs
     public class WelcomeDialog : IDialog<object>
     {
         private string _welcomeNote = "Hey!! :)";
-        
+        private UserAuthentication userAuthenticator;
+
         public Task StartAsync(IDialogContext context)
         {
+            userAuthenticator = new UserAuthentication();
             context.Wait(WelcomeCommuter);
             return Task.CompletedTask;
         }
@@ -23,12 +26,20 @@ namespace CorporatePoolBot.Dialogs
             {
                 var activity = await result as Activity;
                 await context.PostAsync(_welcomeNote);
-                //Check if user is onboarded
-                await context.Forward(new WorkerDialog(), AfterProcessingUserRequest, activity, CancellationToken.None);
+
+                
+                var methodResponse = userAuthenticator.Authenticate(activity);
+                if (!methodResponse.IsSuccess)
+                {
+                    //check user progress
+                    await context.PostAsync(methodResponse.ResponseMessage);
+                    await context.PostAsync("Starting onboarding process");
+                    await context.Forward(new OnboardingDialog(), WelcomeCommuter, activity, CancellationToken.None);
+                }
+                await context.Forward(new RequestDialog(), AfterProcessingUserRequest, activity, CancellationToken.None);
             }
             catch (Exception ex)
             {
-                var s = ex.Message;
                 context.Fail(ex);
             }
         }

@@ -9,6 +9,11 @@ namespace Bot.Worker
     {
         EngineCoreSingleRequest _core = new EngineCoreSingleRequest();
 
+        public GetTripRoute()
+        {
+            _core = new EngineCoreSingleRequest();
+        }
+
         public override void Handle(GetTripRouteMessage message)
         {
             try

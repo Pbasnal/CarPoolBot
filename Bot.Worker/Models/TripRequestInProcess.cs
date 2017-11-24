@@ -1,4 +1,5 @@
 ﻿using Bot.Data;
+using Bot.Data.Models;
 
 namespace Bot.Worker.Models
 {

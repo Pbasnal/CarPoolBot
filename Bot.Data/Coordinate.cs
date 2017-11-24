@@ -5,6 +5,12 @@
         public double Latitude;
         public double Longitude;
 
+        public Coordinate(double lat, double lng)
+        {
+            Latitude = lat;
+            Longitude = lng;
+        }
+
         public override int GetHashCode()
         {
             int hash = 17;

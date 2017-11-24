@@ -5,6 +5,7 @@ using Microsoft.Bot.Connector;
 using Bot.Data;
 using Bot.Models.Facebook;
 using Newtonsoft.Json;
+using Bot.Data.Models;
 
 namespace CorporatePoolBot.Dialogs
 {

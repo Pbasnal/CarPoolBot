@@ -2,10 +2,6 @@
 using Bot.Worker.Core;
 using Bot.Worker.Messages;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bot.Worker
 {
@@ -13,11 +9,16 @@ namespace Bot.Worker
     {
         private EngineCoreSingleRequest _core;
 
+        public AddPoolersToTrip()
+        {
+            _core = new EngineCoreSingleRequest();
+        }
+
         public override void Handle(AddPoolersToTripMessage message)
         {
             try
             {
-                _core.AddPoolersToTrip(message.TripRequest, message.PoolerIndices);
+                _core.AddPoolersToTrip(message);
             }
             catch (Exception ex)
             {

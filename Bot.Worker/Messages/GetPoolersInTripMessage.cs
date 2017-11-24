@@ -1,4 +1,5 @@
 ﻿using Bot.Data;
+using Bot.Data.Models;
 using Bot.MessagingFramework;
 using System.Collections.Generic;
 

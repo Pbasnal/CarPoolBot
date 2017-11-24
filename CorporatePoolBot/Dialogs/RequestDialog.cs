@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Bot.Connector;
 using Bot.Data;
+using Bot.Data.Models;
 
 namespace CorporatePoolBot.Dialogs
 {

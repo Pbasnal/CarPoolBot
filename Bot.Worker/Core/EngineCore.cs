@@ -1,4 +1,5 @@
 ﻿using Bot.Data;
+using Bot.Data.Models;
 using Bot.External;
 using Bot.MessagingFramework;
 using Bot.Models.Internal;
@@ -14,6 +15,11 @@ namespace Bot.Worker.Core
     {
         private EngineState _engineState;
 
+        public EngineCore()
+        {
+            _engineState = EngineState.Instance;
+        }
+
         public EngineState EngineState
         {
             get
@@ -25,8 +31,6 @@ namespace Bot.Worker.Core
         // todo:should return the data for which poolingengine could send requests messages to the customers.
         public MethodResponse ProcessRequests()
         {
-            _engineState = new EngineState();
-
             AddCommuterRequestsToState();
             AddPoolersRequestsToState();
 
@@ -50,7 +54,7 @@ namespace Bot.Worker.Core
 
                 MessageBus.Instance.Publish(new VehicleOwnerAddedToStateMessage
                 {
-                    VehicleOwner = commuterRequest.Commuter,
+                    Route = new Data.Route(route.ToList()),
                     TripRequest = commuterRequest
                 });
             }
@@ -60,10 +64,11 @@ namespace Bot.Worker.Core
         {
             foreach (var commuterRequest in _engineState.CommuterRequestProcessTable)
             {
-                if (!AddPoolersToCommuterRequest(commuterRequest.Value).IsSuccess)
-                    return new MethodResponse(false);
+                var response = AddPoolersToCommuterRequest(commuterRequest.Value);
+                if (!response.IsSuccess)
+                    return response;
             }
-            return new MethodResponse(true);
+            return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
         }
 
         private MethodResponse AddPoolersToCommuterRequest(CommuterRequestProcessModel commuterRequestProcess)
@@ -98,7 +103,7 @@ namespace Bot.Worker.Core
                         break;
                 }
             }
-            return new MethodResponse(true);
+            return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
         }
 
         public MethodResponse AddPoolersToTrip(TripRequest commuterRequest, int[] poolerIndices)

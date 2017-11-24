@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Actor.cs" />
     <Compile Include="AddPoolersToTrip.cs" />
+    <Compile Include="HandlerInitializer.cs" />
     <Compile Include="Core\EngineCoreSingleRequest.cs" />
     <Compile Include="Core\EngineCore.cs" />
     <Compile Include="Core\EngineCoreStatus.cs" />
@@ -54,6 +55,8 @@
     <Compile Include="Messages\GetTripRouteMessage.cs" />
     <Compile Include="Messages\PoolerAddToTripMessage.cs" />
     <Compile Include="Messages\ProcessTripOwnerRequestMessage.cs" />
+    <Compile Include="Messages\ReqestOwnerToAcceptPoolersMessage.cs" />
+    <Compile Include="Messages\TripDidNotStartedMessage.cs" />
     <Compile Include="Messages\TripStartedMessage.cs" />
     <Compile Include="Messages\VehicleOwnerAddedToStateMessage.cs" />
     <Compile Include="Messages\PoolerAddedToStateMessage.cs" />

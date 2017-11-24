@@ -49,6 +49,7 @@
     <Compile Include="Facebook\Sender.cs" />
     <Compile Include="Internal\ErrorCodes.cs" />
     <Compile Include="Internal\MethodResponse.cs" />
+    <Compile Include="Internal\ResponseMessages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

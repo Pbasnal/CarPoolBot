@@ -1,4 +1,5 @@
 ﻿using Bot.Data;
+using Bot.Data.Models;
 using Bot.Models.Internal;
 using Bot.Worker.Core;
 using Bot.Worker.Models;
@@ -54,9 +55,9 @@ namespace Bot.Worker
             await Task.Factory.StartNew(() =>
             {
                 var methodResponse = _core.AddPoolersToTrip(commuterRequest, poolerIndices);
-                if (methodResponse.ResponseInfo.ResponseCode != ResponseCodes.TripDidNotStart)
+                if (methodResponse.ResponseCode != ResponseCodes.TripDidNotStart)
                     methodResponse = _core.StartTrip(commuterRequest);
-                if (methodResponse.ResponseInfo.ResponseCode == ResponseCodes.TripStarted)
+                if (methodResponse.ResponseCode == ResponseCodes.TripStarted)
                 { //RequestCompleteCallback(commuterRequest); 
                 }
             });

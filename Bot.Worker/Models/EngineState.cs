@@ -1,4 +1,5 @@
 ﻿using Bot.Data;
+using Bot.Data.Models;
 using Bot.Models.Internal;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Bot.Worker.Models
     public class EngineState
     {
         private object baton = new object();
-        private EngineState _instance;
+        private static EngineState _instance;
 
         public IDictionary<Guid, CommuterRequestProcessModel> CommuterRequestProcessTable { get; private set; }
 
@@ -25,7 +26,7 @@ namespace Bot.Worker.Models
             PoolerCommuterMapping = new Dictionary<Guid, Guid>();
         }
 
-        public EngineState Instance
+        public static EngineState Instance
         {
             get
             {
@@ -41,23 +42,17 @@ namespace Bot.Worker.Models
         {
             try
             {
-                var trip = new Trip
-                {
-                    GoingTo = tripRequest.GoingTo,
-                    Owner = tripRequest.Commuter,
-                    Passengers = new List<Commuter>(tripRequest.Commuter.Vehicle.MaxPassengerCount)
-                };
-                
+                var commuterRequestProcess = new CommuterRequestProcessModel(tripRequest, route);
                 lock (baton)
                 {
                     if (CommuterRequestProcessTable.Keys.Contains(tripRequest.Commuter.CommuterId))
                     {
-                        return new MethodResponse(true);
+                        return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
                     }
                     CommuterRequestProcessTable.Add(tripRequest.Commuter.CommuterId,
-                        new CommuterRequestProcessModel(trip, route));
+                        commuterRequestProcess);
                 }
-                return new MethodResponse(true);
+                return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
             }
             catch (Exception ex)
             {
