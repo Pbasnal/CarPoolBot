@@ -1,20 +1,18 @@
 ﻿using Bot.Data;
+using Bot.Data.Models;
 using Bot.External;
+using Bot.MessagingFramework;
 using Bot.Worker;
-using Bot.Worker.Core;
-using Bot.Worker.Models;
+using Bot.Worker.Messages;
 using GMap.NET;
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace EngineTestTool
@@ -30,16 +28,15 @@ namespace EngineTestTool
         double MAXY = 78.3804130554199;
 
         int CountIncrement = 500;
-        int OldCommuterCount = 0;
-        int OldPoolerCount = 0;
-
+        
         int MAX_COMMUTER_COUNT = 100;
         int MAX_POOLER_COUNT = 1000;
 
         Random random = new Random();
-        IDictionary<Coordinate, IList<Coordinate>> CommuterDataSet;
-        IDictionary<Coordinate, IList<Coordinate>> PoolerDataSet;
+        IDictionary<Coordinate, IList<Commuter>> CommuterDataSet;
+        IDictionary<Coordinate, IList<Commuter>> PoolerDataSet;
 
+        IDictionary<Guid, TripStartedMessage> DriverPassenger;
 
         IList<GMarkerGoogle> poolerMarkers = new List<GMarkerGoogle>();
         GMapOverlay markersOverlay = new GMapOverlay("markers");
@@ -66,10 +63,10 @@ namespace EngineTestTool
             gMapControl1.Position = new PointLatLng(17.4301704555282, 78.3572387695313);
             gMapControl1.Zoom = 14;
 
-            gMapControl1.Overlays.Add(markersOverlay);
-            gMapControl1.Overlays.Add(routesOverlay);
             gMapControl1.Overlays.Add(graphOverlay);
+            gMapControl1.Overlays.Add(routesOverlay);
             gMapControl1.Overlays.Add(passengerOverlay);
+            gMapControl1.Overlays.Add(markersOverlay);
             RefreshPlot();
         }
 
@@ -79,15 +76,29 @@ namespace EngineTestTool
             PlotDataSet(0);
 
             gMapControl1.Update();
-            RefreshTrees();
+            RefreshCommuterTree();
         }
 
         private void GenerateRandomPoints()
         {
-            CommuterDataSet = new Dictionary<Coordinate, IList<Coordinate>>();
-            PoolerDataSet = new Dictionary<Coordinate, IList<Coordinate>>();
+            CommuterDataSet = new Dictionary<Coordinate, IList<Commuter>>();
+            PoolerDataSet = new Dictionary<Coordinate, IList<Commuter>>();
 
             TripRequestManager.ClearAllRequests();
+
+            // generating random people who will pool
+            for (int i = 0; i < MAX_POOLER_COUNT; i++)
+            {
+                var request = GetRandomRequest(GoingHow.Pool, GoingTo.Office);
+                TripRequestManager.AddTripRequest(request);
+
+                var keyPoint = GetKeyPoint(request.Commuter.HomeCoordinate);
+
+                if (!PoolerDataSet.Keys.Contains(keyPoint))
+                    PoolerDataSet.Add(keyPoint, new List<Commuter>());
+                PoolerDataSet[keyPoint].Add(request.Commuter);
+            }
+
             Maps maps = new Maps();
             // generating random people who will drive
             for (int i = 0; i < MAX_COMMUTER_COUNT; i++)
@@ -106,21 +117,8 @@ namespace EngineTestTool
                 var keyPoint = GetKeyPoint(request.Commuter.HomeCoordinate);
 
                 if (!CommuterDataSet.Keys.Contains(keyPoint))
-                    CommuterDataSet.Add(keyPoint, new List<Coordinate>());
-                CommuterDataSet[keyPoint].Add(request.Commuter.HomeCoordinate);
-            }
-
-            // generating random people who will pool
-            for (int i = 0; i < MAX_POOLER_COUNT; i++)
-            {
-                var request = GetRandomRequest(GoingHow.Pool, GoingTo.Office);
-                TripRequestManager.AddTripRequest(request);
-
-                var keyPoint = GetKeyPoint(request.Commuter.HomeCoordinate);
-
-                if (!PoolerDataSet.Keys.Contains(keyPoint))
-                    PoolerDataSet.Add(keyPoint, new List<Coordinate>());
-                PoolerDataSet[keyPoint].Add(request.Commuter.HomeCoordinate);
+                    CommuterDataSet.Add(keyPoint, new List<Commuter>());
+                CommuterDataSet[keyPoint].Add(request.Commuter);
             }
         }
 
@@ -129,16 +127,16 @@ namespace EngineTestTool
             PlotGraph();
             foreach (var dataPoints in CommuterDataSet)
             {
-                foreach (var point in dataPoints.Value)
+                foreach (var commuter in dataPoints.Value)
                 {
-                    AddMarkerAt(point, GMarkerGoogleType.blue_dot, null);
+                    AddMarkerAt(commuter.CommuterId.ToString(), commuter.HomeCoordinate, GMarkerGoogleType.blue_dot, null);
                 }
             }
             foreach (var dataPoints in PoolerDataSet)
             {
-                foreach (var point in dataPoints.Value)
+                foreach (var commuter in dataPoints.Value)
                 {
-                    poolerMarkers.Add(AddMarkerAt(point, GMarkerGoogleType.red_dot, null));
+                    poolerMarkers.Add(AddMarkerAt(commuter.CommuterId.ToString(), commuter.HomeCoordinate, GMarkerGoogleType.red_dot, null));
                 }
             }
         }
@@ -231,11 +229,11 @@ namespace EngineTestTool
             return roundedPoint;
         }
 
-        private GMarkerGoogle AddMarkerAt(Coordinate cLoc, GMarkerGoogleType markerType, GMapOverlay overlay)
+        private GMarkerGoogle AddMarkerAt(string markerId, Coordinate cLoc, GMarkerGoogleType markerType, GMapOverlay overlay)
         {
             GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(cLoc.Latitude, cLoc.Longitude),
               markerType);
-
+            marker.Tag = markerId;
             if (overlay == null)
                 markersOverlay.Markers.Add(marker);
             else
@@ -244,99 +242,44 @@ namespace EngineTestTool
             return marker;
         }
 
-        private GMarkerGoogle AddMarkerAt(PointLatLng loc, GMarkerGoogleType markerType, GMapOverlay overlay)
+
+        private void RefreshCommuterTree()
         {
-            GMarkerGoogle marker = new GMarkerGoogle(loc, markerType);
-            if (overlay == null)
-                markersOverlay.Markers.Add(marker);
-            else
-                overlay.Markers.Add(marker);
-
-            return marker;
-        }
-
-        private void RefreshTrees()
-        {
-            var commuterRequestTable = TripRequestManager.GetAllCommuterRequests();
-            if (OldCommuterCount != commuterRequestTable.Count)
-            {
-                RefreshTree(commutersTreeView, commuterRequestTable);
-                //commuterTree.Text = "Commuter Tree : " + commuterRequestTable.Count;
-                OldCommuterCount = commuterRequestTable.Count;
-            }
-
-
-            var poolersRequestTable = TripRequestManager.GetAllPoolerRequests();
-            if (OldPoolerCount != poolersRequestTable.Count)
-            {
-                RefreshTree(poolersTreeView, poolersRequestTable);
-                //poolerTree.Text = "Pooler Tree : " + poolersRequestTable.Count;
-                OldPoolerCount = poolersRequestTable.Count;
-            }
-
+            RefreshTree(commutersTreeView, CommutersRequest.Select(x => x.Commuter).ToList());
             commutersTreeView.ExpandAll();
+        }
+
+        private void RefreshPassengerTree(Guid commuterId)
+        {
+            var passenger = DriverPassenger.FirstOrDefault(x => x.Key == commuterId);
+            if (passenger.Value == null)
+                return;
+            RefreshTree(poolersTreeView, passenger.Value.Trip.Passengers);
             poolersTreeView.ExpandAll();
         }
 
-        private void RefreshTree(TreeView tree, IDictionary<Coordinate, IList<TripRequest>> commuterRequestTable)
+        private void RefreshTree(TreeView tree, IList<Commuter> commuters)
         {
             tree.Nodes.Clear();
-            foreach (var requestPair in commuterRequestTable)
+            foreach (var commuter in commuters)
             {
                 TreeNode rootNode = new TreeNode
                 {
-                    Text = requestPair.Key.Latitude + " " + requestPair.Key.Longitude
+                    Text = commuter.CommuterName,
+                    Tag = commuter.CommuterId
                 };
-                foreach (var request in requestPair.Value)
-                {
-                    Coordinate coordinate;
-
-                    switch (request.GoingTo)
-                    {
-                        case GoingTo.Home:
-                            coordinate = request.Commuter.OfficeCoordinate;
-                            break;
-                        case GoingTo.Office:
-                            coordinate = request.Commuter.HomeCoordinate;
-                            break;
-                        default:
-                            return;
-                    }
-
-                    var node = new TreeNode
-                    {
-                        Text = coordinate.Latitude + " " + coordinate.Longitude
-                    };
-
-                    rootNode.Nodes.Add(node);
-                }
 
                 if (!tree.InvokeRequired)
                 {
                     tree.Nodes.Add(rootNode);
-                    return;
+                    continue;
                 }
 
-                tree.BeginInvoke((MethodInvoker) delegate
-                {
-                    tree.Nodes.Add(rootNode);
-                });
+                tree.BeginInvoke((MethodInvoker)delegate
+               {
+                   tree.Nodes.Add(rootNode);
+               });
             }
-        }
-
-       
-        private void RefreshTree(TreeView tree, IList<Commuter> commuters)
-        {
-            IDictionary<Coordinate, IList<TripRequest>> requestTable = new Dictionary<Coordinate, IList<TripRequest>>();
-            foreach (var commuter in commuters)
-            {
-                var keyPoint = PoolingMath.GetKeyPoint(commuter.HomeCoordinate);
-                if (!requestTable.ContainsKey(keyPoint))
-                    requestTable.Add(keyPoint, new List<TripRequest>());
-                requestTable[keyPoint].Add(new TripRequest { Commuter = commuter });
-            }
-
-            RefreshTree(tree, requestTable);
         }
 
         private void gMapControl1_MouseClick(object sender, MouseEventArgs e)
@@ -352,55 +295,14 @@ namespace EngineTestTool
         private void start_Click(object sender, EventArgs e)
         {
             CheckForIllegalCrossThreadCalls = false;
-            PoolingEngine.Instance.SetRequestCallBack(DisplayTrip);
-            PoolingEngine.Instance.QueuePoolingRequest(null);
-            UpdateStateDisplay();
 
-            AddMockPoolersToTrip();
-        }
-
-        private async Task UpdateStateDisplay()
-        {
-            await Task.Factory.StartNew(() =>
+            foreach (var request in CommutersRequest)
             {
-                //todo:remove this logic, implement some way to call back when processing is done for the commuter
-                while (PoolingEngine.Instance.Status != EngineStatus.Completed)
+                MessageBus.Instance.Publish(new ProcessTripOwnerRequestMessage
                 {
-                    DisplayState();
-                    Thread.Sleep(100);
-                }
-                DisplayState();
-
-                //foreach (var request in CommutersRequest)
-                //{
-                //    ClearMap();
-
-                //    DisplayTrip(request);
-                //    Thread.Sleep(250);
-                //}
-            });
-        }
-
-        private async Task AddMockPoolersToTrip()
-        {
-            await Task.Factory.StartNew(() =>
-            {
-                for (int i = 0; i < CommutersRequest.Count; i++)
-                {
-                    var request = CommutersRequest[i];
-                    var waitingPoolers = PoolingEngine.Instance.GetPoolersToRequestForTrip(request);
-
-                    if (waitingPoolers == null || waitingPoolers.Count == 0)
-                    {
-                        Thread.Sleep(100);
-                        i--;
-                        continue;
-                    }
-
-                    var poolerIndices = Enumerable.Range(0, waitingPoolers.Count);
-                    PoolingEngine.Instance.AddPoolersToTrip(request, poolerIndices.ToArray());
-                }
-            });
+                    TripOwnerRequest = request
+                });
+            }
         }
 
         private void ClearMap()
@@ -410,10 +312,6 @@ namespace EngineTestTool
                 markersOverlay.Markers[0] = null;
                 markersOverlay.Markers.RemoveAt(0);
             }
-            //foreach (var marker in poolerMarkers)
-            //{
-            //    AddMarkerAt(marker.Position, GMarkerGoogleType.red_small, null);
-            //}
             while (passengerOverlay.Markers.Count > 0)
             {
                 passengerOverlay.Markers[0] = null;
@@ -423,6 +321,32 @@ namespace EngineTestTool
             {
                 routesOverlay.Routes[0] = null;
                 routesOverlay.Routes.RemoveAt(0);
+            }
+        }
+
+        private void MakeEverythingLessSignificant()
+        {
+            foreach (var marker in markersOverlay.Markers)
+            {
+                marker.Size = new Size(15, 15);
+            }
+            foreach (var marker in passengerOverlay.Markers)
+            {
+                marker.Size = new Size(15, 15);
+            }
+            foreach (var route in routesOverlay.Routes)
+            {
+                route.Stroke = Pens.AliceBlue;
+            }
+        }
+
+        private void MakeMarkerSignificant(string markerId)
+        {
+            var marker = markersOverlay.Markers.FirstOrDefault(m => (string)m.Tag == markerId);
+            if (marker != null)
+            {
+                marker.Size = new Size(32, 32);
+                return;
             }
         }
 
@@ -436,34 +360,35 @@ namespace EngineTestTool
                 "Total Processed Commuters : " + totalProcessedCommuters;
         }
 
-        public void DisplayTrip(TripRequest request)
-        {
-            ClearMap();
-            CheckForIllegalCrossThreadCalls = false;
-            List<PointLatLng> points = ConvertCoordinatesToPoint(PoolingEngine.Instance.GetCommuterRoute(request));
-            if (points.Count == 0)
-                return;
+        //public void DisplayTrip(TripRequest request)
+        //{
+        //    ClearMap();
+        //    CheckForIllegalCrossThreadCalls = false;
+        //    List<PointLatLng> points = ConvertCoordinatesToPoint(PoolingEngine.Instance.GetCommuterRoute(request).Path.ToList());
+        //    if (points.Count == 0)
+        //        return;
 
-            DisplayRoute(points, Color.Red, 3);
-            AddMarkerAt(points.First(), GMarkerGoogleType.green_dot, null);
-            AddMarkerAt(points.Last(), GMarkerGoogleType.purple_dot, null);
+        //    DisplayRoute(points, Color.Red, 3);
+        //    AddMarkerAt(points.First(), GMarkerGoogleType.green_dot, null);
+        //    AddMarkerAt(points.Last(), GMarkerGoogleType.purple_dot, null);
 
-            //RefreshTree(poolersTreeView, PoolingEngine.GetPoolersInTrip(request));
+        //    //RefreshTree(poolersTreeView, PoolingEngine.GetPoolersInTrip(request));
 
-            foreach (var pooler in PoolingEngine.Instance.GetPoolersInTrip(request))
-            {
-                AddMarkerAt(pooler.HomeCoordinate, GMarkerGoogleType.orange, passengerOverlay);
-            }
+        //    foreach (var pooler in PoolingEngine.Instance.GetPoolersInTrip(request))
+        //    {
+        //        AddMarkerAt(pooler.HomeCoordinate, GMarkerGoogleType.orange, passengerOverlay);
+        //    }
 
-            gMapControl1.Update();
-            gMapControl1.Refresh();
-        }
+        //    gMapControl1.Update();
+        //    gMapControl1.Refresh();
+        //}
 
-        private void DisplayRoute(List<PointLatLng> points, Color color, int size)
+        public void DisplayRoute(List<PointLatLng> points, Color color, int size)
         {
             GMapRoute route = new GMapRoute(points, "A walk in the park");
             route.Stroke = new Pen(color, size);
             routesOverlay.Routes.Add(route);
+            Thread.Sleep(50);//added bcoz while adding routes GMapRoute lib is also accessing routes to display
         }
 
         private void DisplayGraphLine(List<PointLatLng> points, Color color, int size)
@@ -473,7 +398,7 @@ namespace EngineTestTool
             graphOverlay.Routes.Add(line);
         }
 
-        private List<PointLatLng> ConvertCoordinatesToPoint(List<Coordinate> coordinates)
+        public List<PointLatLng> ConvertCoordinatesToPoint(List<Coordinate> coordinates)
         {
             var points = new List<PointLatLng>();
 
@@ -482,6 +407,72 @@ namespace EngineTestTool
                 points.Add(new PointLatLng(coordinate.Latitude, coordinate.Longitude));
             }
             return points;
+        }
+
+        public void DisplayTrip(TripStartedMessage message)
+        {
+            MakeEverythingLessSignificant();
+            CheckForIllegalCrossThreadCalls = false;
+            List<PointLatLng> points = ConvertCoordinatesToPoint(message.Route.Path.ToList());
+            if (points.Count == 0)
+                return;
+
+            DisplayRoute(points, Color.Red, 3);
+            var markerId = message.Trip.Owner.CommuterId.ToString();
+            MakeMarkerSignificant(message.Trip.Owner.CommuterId.ToString());
+            markerId += "dest";
+            var marker = markersOverlay.Markers.FirstOrDefault(m => (string)m.Tag == markerId);
+            if (marker == null)
+                AddMarkerAt(markerId, message.Route.Destination, GMarkerGoogleType.purple_dot, null);
+            else
+                MakeMarkerSignificant(markerId);
+
+            foreach (var pooler in message.Trip.Passengers)
+            {
+                MakeMarkerSignificant(pooler.CommuterId.ToString());
+            }
+            gMapControl1.Update();
+            gMapControl1.Refresh();
+        }
+
+        public void AddCommuterAndPassengersToList(TripStartedMessage message)
+        {
+            //should not get duplicate tripstarted message or multiple messages for same commuter
+
+            if (DriverPassenger == null)
+                DriverPassenger = new Dictionary<Guid, TripStartedMessage>();
+            if (DriverPassenger.ContainsKey(message.Trip.Owner.CommuterId))
+            {
+                foreach (var passenger in message.Trip.Passengers)
+                {
+                    var p = DriverPassenger[message.Trip.Owner.CommuterId].Trip.Passengers.FirstOrDefault(x => x.CommuterId == passenger.CommuterId);
+                    if (p != null)
+                    {
+                        //should inform if the passenger already exists
+                        continue;
+                    }
+                    DriverPassenger[message.Trip.Owner.CommuterId].Trip.AddPassenger(passenger);
+                }
+            }
+            else
+            {
+                DriverPassenger.Add(message.Trip.Owner.CommuterId, message);
+            }
+
+            //RefreshCommuterTree();
+            //RefreshPassengerTree(message.Trip.Owner.CommuterId);
+        }
+
+        private void commutersTreeView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            var commuterId = (Guid)e.Node.Tag;
+
+            if (DriverPassenger == null)
+                return;
+            var message = DriverPassenger[commuterId];
+            DisplayTrip(message);
+
+            RefreshPassengerTree(commuterId);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Bot.Data
+namespace Bot.Data.Models
 {
     public class Trip
     {

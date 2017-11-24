@@ -101,6 +101,7 @@
     <Compile Include="ParallelTest.Designer.cs">
       <DependentUpon>ParallelTest.cs</DependentUpon>
     </Compile>
+    <Compile Include="RequestOwnerToAcceptPoolersHandler.cs" />
     <Compile Include="TestTool.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -109,6 +110,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TripStartedHandler.cs" />
+    <Compile Include="VehicleOwnerAddedToStateHandler.cs" />
     <EmbeddedResource Include="Gmap.resx">
       <DependentUpon>Gmap.cs</DependentUpon>
     </EmbeddedResource>
@@ -149,6 +152,10 @@
     <ProjectReference Include="..\Bot.External\Bot.External.csproj">
       <Project>{5811A0BF-D14B-4EE5-881A-06D71B5332D8}</Project>
       <Name>Bot.External</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bot.MessageBus\Bot.MessagingFramework.csproj">
+      <Project>{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}</Project>
+      <Name>Bot.MessagingFramework</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bot.Models\Bot.Models.csproj">
       <Project>{11E1325C-C459-45C9-A5BF-BABD9D7FE201}</Project>

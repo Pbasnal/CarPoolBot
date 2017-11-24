@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using GMap.NET;
 using GMap.NET.MapProviders;
+using Bot.Data.Models;
 //using Google.Maps;
 //using Google.Maps.Direction;
 

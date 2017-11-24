@@ -5,6 +5,7 @@ using Microsoft.Bot.Connector;
 using Bot.Models.Facebook;
 using Newtonsoft.Json;
 using Bot.Data;
+using Bot.Data.Models;
 
 namespace CorporatePoolBot.Dialogs
 {
@@ -27,13 +28,14 @@ namespace CorporatePoolBot.Dialogs
                 var activity = await result as Activity;
                 var commuter = new Commuter();
                 commuter.CommuterName = activity.From.Name;
-                commuter.CommuterId = activity.From.Id;
+                commuter.MediaId = activity.From.Id;
+                commuter.CommuterId = Guid.NewGuid();
 
-                CommuterManager.AddMicrosotCommuter(commuter);
+                CommuterManager.AddCommuter(commuter);
 
                 // should check if the vehicle has been onboarded
                 await context.PostAsync("Do you own a vehicle?(yes/no)");
-                context.Wait(DoYouOwnVehicle);
+                //context.Wait(DoYouOwnVehicle);
             }
             catch (Exception ex)
             {
@@ -150,6 +152,7 @@ namespace CorporatePoolBot.Dialogs
                 var activity = await result as Activity;
                 var msgText = activity.Text;
                 int option;
+                var commuter = CommuterManager.GetCommuter(activity.From.Id);
 
                 if (Int32.TryParse(msgText, out option))
                 {
@@ -157,6 +160,7 @@ namespace CorporatePoolBot.Dialogs
                     {
                         case 1:
                             Office = "Microsoft";
+                            CommuterManager.AddOfficeOfCommuter(commuter, new Coordinate(17.4318848, 78.34318));
                             await context.PostAsync("Send your home location");
                             context.Wait(WhereDoYouLive);
                             break;
@@ -171,6 +175,7 @@ namespace CorporatePoolBot.Dialogs
                     if (msgText.ToLower().Equals("microsoft"))
                     {
                         Office = "Microsoft";
+                        CommuterManager.AddOfficeOfCommuter(commuter, new Coordinate(17.4318848, 78.34318));
                         await context.PostAsync("Send your home location");
                         context.Wait(WhereDoYouLive);
                         return;
@@ -192,22 +197,27 @@ namespace CorporatePoolBot.Dialogs
             {
                 if (!string.IsNullOrWhiteSpace(HomeLocation))
                 {
-                    context.Done("Ho gaya onboard!!");
+                    context.Done("Onboarding is already done");
                     return;
                 }
                 var activity = await result as Activity;
                 FacebookMessage facebookMessage = JsonConvert.DeserializeObject<FacebookMessage>(activity.ChannelData.ToString());
 
                 //Users.UsersList.GetUser(facebookMessage.sender.id);
-                //commuterData.HomeCoordinate.Latitude = facebookMessage.message.attachments[0].payload.coordinates.lat;
-                //commuterData.HomeCoordinate.Longitude = facebookMessage.message.attachments[0].payload.coordinates.@long;
                 if (facebookMessage == null)
                 {
                     await context.PostAsync("Send your home location");
                     context.Wait(WhereDoYouLive);
-                    return;
                 }
-                context.Done("Ho gaya onboard!!");
+                else
+                {
+                    var commuter = CommuterManager.GetCommuter(activity.From.Id);
+                    var homeCoordinate = new Coordinate(facebookMessage.message.attachments[0].payload.coordinates.lat,
+                        facebookMessage.message.attachments[0].payload.coordinates.@long);
+
+                    CommuterManager.AddHouseOfCommuter(commuter, homeCoordinate);
+                }
+                context.Done("Onboarding is complete");
             }
             catch (Exception ex)
             {

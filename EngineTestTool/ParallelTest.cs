@@ -1,4 +1,8 @@
-﻿using Bot.Worker;
+﻿using Bot.Data;
+using Bot.Data.Models;
+using Bot.MessagingFramework;
+using Bot.Worker;
+using Bot.Worker.Messages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,7 +24,10 @@ namespace EngineTestTool
 
         private void StartProcessButton_Click(object sender, EventArgs e)
         {
-            PoolingEngine.Instance.QueuePoolingRequest(null);
+            MessageBus.Instance.Publish(new ProcessTripOwnerRequestMessage
+            {
+                TripOwnerRequest = new TripRequest()
+            });
 
             var t = DateTime.UtcNow;
             while (DateTime.UtcNow - t < TimeSpan.FromSeconds(5))

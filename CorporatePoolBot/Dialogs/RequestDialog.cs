@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Bot.Connector;
 using Bot.Data;
+using Bot.Data.Models;
 
 namespace CorporatePoolBot.Dialogs
 {
@@ -94,7 +95,7 @@ namespace CorporatePoolBot.Dialogs
         {
             TripRequest request = new TripRequest
             {
-                Commuter = CommuterManager.GetCommuter(activity.From.Id),
+                Commuter = CommuterManager.GetCommuter(new Guid(activity.From.Id)),
                 GoingHow = this.GoingHow,
                 GoingTo = this.GoingTo,
                 RequestTime = DateTime.UtcNow,

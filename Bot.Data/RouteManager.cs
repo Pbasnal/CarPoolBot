@@ -2,7 +2,6 @@
 
 namespace Bot.Data
 {
-
     // needs to be thought upon
     public class RouteManager
     {
@@ -12,8 +11,6 @@ namespace Bot.Data
         {
             var route = new Route
             {
-                Origin = origin,
-                Destination = destination,
                 Waypoints = waypoints
             };
 

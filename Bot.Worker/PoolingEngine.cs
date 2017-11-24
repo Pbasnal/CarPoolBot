@@ -1,4 +1,5 @@
 ﻿using Bot.Data;
+using Bot.Data.Models;
 using Bot.Models.Internal;
 using Bot.Worker.Core;
 using Bot.Worker.Models;
@@ -14,9 +15,6 @@ namespace Bot.Worker
     {
         private static PoolingEngine _instance;
         private Queue<ProcessNewRequest> _newProcessRequests;
-
-        private ManualResetEvent _newRequestsHandle;
-        private ManualResetEvent _addPoolersToTripHandle;
 
         private EngineCore _core;
 
@@ -44,12 +42,6 @@ namespace Bot.Worker
             }
         }
 
-        // maybe a separate workflow for handling delegates and interactions
-        // seems like actor model would be a better fit for this!!
-        public delegate void RequestCompleteCallbackDelegate(TripRequest request);
-
-        public static RequestCompleteCallbackDelegate RequestCompleteCallback;
-
         public async Task QueuePoolingRequest()
         {
             await Task.Factory.StartNew(() =>
@@ -63,10 +55,11 @@ namespace Bot.Worker
             await Task.Factory.StartNew(() =>
             {
                 var methodResponse = _core.AddPoolersToTrip(commuterRequest, poolerIndices);
-                if (methodResponse.ResponseInfo.ResponseCode != ResponseCodes.TripDidNotStart)
+                if (methodResponse.ResponseCode != ResponseCodes.TripDidNotStart)
                     methodResponse = _core.StartTrip(commuterRequest);
-                if (methodResponse.ResponseInfo.ResponseCode == ResponseCodes.TripStarted)
-                    RequestCompleteCallback(commuterRequest);
+                if (methodResponse.ResponseCode == ResponseCodes.TripStarted)
+                { //RequestCompleteCallback(commuterRequest); 
+                }
             });
         }
 
@@ -88,11 +81,6 @@ namespace Bot.Worker
         public Models.Route GetCommuterRoute(TripRequest request)
         {
             return _core.GetTripRoute(request);
-        }
-
-        public void SetRequestCallBack(RequestCompleteCallbackDelegate callbackMethod)
-        {
-            RequestCompleteCallback = callbackMethod;
         }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.Bot.Connector;
 using Bot.Data;
 using Bot.Models.Facebook;
 using Newtonsoft.Json;
+using Bot.Data.Models;
 
 namespace CorporatePoolBot.Dialogs
 {
@@ -53,7 +54,7 @@ namespace CorporatePoolBot.Dialogs
             {
                 //start a new trip for the user
                 FacebookMessage fbmessage = JsonConvert.DeserializeObject<FacebookMessage>(message.ChannelData.ToString());
-                Commuter owner = CommuterManager.GetCommuter(fbmessage.sender.id);
+                Commuter owner = CommuterManager.GetCommuter(new Guid(fbmessage.sender.id));
                 if (owner == null)
                 {
                     await context.PostAsync("You are not yet onboarded");

@@ -1,6 +1,9 @@
 ﻿using Bot.Data;
+using Bot.Data.Models;
 using Bot.External;
+using Bot.MessagingFramework;
 using Bot.Models.Internal;
+using Bot.Worker.Messages;
 using Bot.Worker.Models;
 using System;
 using System.Collections.Generic;
@@ -11,6 +14,11 @@ namespace Bot.Worker.Core
     public class EngineCore
     {
         private EngineState _engineState;
+
+        public EngineCore()
+        {
+            _engineState = EngineState.Instance;
+        }
 
         public EngineState EngineState
         {
@@ -23,8 +31,6 @@ namespace Bot.Worker.Core
         // todo:should return the data for which poolingengine could send requests messages to the customers.
         public MethodResponse ProcessRequests()
         {
-            _engineState = new EngineState();
-
             AddCommuterRequestsToState();
             AddPoolersRequestsToState();
 
@@ -44,8 +50,13 @@ namespace Bot.Worker.Core
                 if (route == null || route.Count == 0) continue; // we need to put this in retry list
 
                 if (!_engineState.AddCommuterToState(commuterRequest, route).IsSuccess) continue;
-
                 TripRequestManager.UpdateRequestStatus(commuterRequest, RequestStatus.InProcess);
+
+                MessageBus.Instance.Publish(new VehicleOwnerAddedToStateMessage
+                {
+                    Route = new Data.Route(route.ToList()),
+                    TripRequest = commuterRequest
+                });
             }
         }
 
@@ -53,10 +64,11 @@ namespace Bot.Worker.Core
         {
             foreach (var commuterRequest in _engineState.CommuterRequestProcessTable)
             {
-                if (!AddPoolersToCommuterRequest(commuterRequest.Value).IsSuccess)
-                    return new MethodResponse(false);
+                var response = AddPoolersToCommuterRequest(commuterRequest.Value);
+                if (!response.IsSuccess)
+                    return response;
             }
-            return new MethodResponse(true);
+            return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
         }
 
         private MethodResponse AddPoolersToCommuterRequest(CommuterRequestProcessModel commuterRequestProcess)
@@ -78,13 +90,20 @@ namespace Bot.Worker.Core
                     _engineState.PoolerCommuterMapping.Add(poolRequest.Commuter.CommuterId,
                         commuterRequestProcess.Trip.Owner.CommuterId);
                     TripRequestManager.UpdateRequestStatus(poolRequest, RequestStatus.Waiting);
-
                     numberOfPoolersNeeded--;
+
+                    MessageBus.Instance.Publish(new PoolerAddedToStateMessage
+                    {
+                        Pooler = poolRequest.Commuter,
+                        TripRequest = poolRequest,
+                        VehicleOwner = commuterRequestProcess.Trip.Owner
+                    });
+
                     if (numberOfPoolersNeeded <= 0)
                         break;
                 }
             }
-            return new MethodResponse(true);
+            return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
         }
 
         public MethodResponse AddPoolersToTrip(TripRequest commuterRequest, int[] poolerIndices)

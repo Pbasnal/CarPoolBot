@@ -41,7 +41,29 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actor.cs" />
+    <Compile Include="AddPoolersToTrip.cs" />
+    <Compile Include="HandlerInitializer.cs" />
+    <Compile Include="Core\EngineCoreSingleRequest.cs" />
     <Compile Include="Core\EngineCore.cs" />
+    <Compile Include="Core\EngineCoreStatus.cs" />
+    <Compile Include="EndTheTrip.cs" />
+    <Compile Include="GetPoolersInTrip.cs" />
+    <Compile Include="GetTripRoute.cs" />
+    <Compile Include="Messages\AddPoolersToTripMessage.cs" />
+    <Compile Include="Messages\EndTripMessage.cs" />
+    <Compile Include="Messages\GetPoolersInTripMessage.cs" />
+    <Compile Include="Messages\GetTripRouteMessage.cs" />
+    <Compile Include="Messages\PoolerAddToTripMessage.cs" />
+    <Compile Include="Messages\ProcessTripOwnerRequestMessage.cs" />
+    <Compile Include="Messages\ReqestOwnerToAcceptPoolersMessage.cs" />
+    <Compile Include="Messages\TripDidNotStartedMessage.cs" />
+    <Compile Include="Messages\TripStartedMessage.cs" />
+    <Compile Include="Messages\VehicleOwnerAddedToStateMessage.cs" />
+    <Compile Include="Messages\PoolerAddedToStateMessage.cs" />
+    <Compile Include="Models\Route.cs" />
+    <Compile Include="Models\TripRequestInProcess.cs" />
+    <Compile Include="Models\TripRequestStatus.cs" />
+    <Compile Include="ProcessTripOwnerRequest.cs" />
     <Compile Include="Requests\ProcessNewRequestsMessage.cs" />
     <Compile Include="Models\CommuterRequestProcessModel.cs" />
     <Compile Include="PoolingEngine.cs" />
@@ -57,6 +79,10 @@
       <Project>{5811a0bf-d14b-4ee5-881a-06d71b5332d8}</Project>
       <Name>Bot.External</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Bot.MessageBus\Bot.MessagingFramework.csproj">
+      <Project>{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}</Project>
+      <Name>Bot.MessagingFramework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bot.Models\Bot.Models.csproj">
       <Project>{11E1325C-C459-45C9-A5BF-BABD9D7FE201}</Project>
       <Name>Bot.Models</Name>
@@ -65,6 +91,7 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

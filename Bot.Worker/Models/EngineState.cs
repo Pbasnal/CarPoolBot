@@ -1,4 +1,5 @@
 ﻿using Bot.Data;
+using Bot.Data.Models;
 using Bot.Models.Internal;
 using System;
 using System.Collections.Generic;
@@ -12,40 +13,46 @@ namespace Bot.Worker.Models
     public class EngineState
     {
         private object baton = new object();
+        private static EngineState _instance;
 
         public IDictionary<Guid, CommuterRequestProcessModel> CommuterRequestProcessTable { get; private set; }
 
         public IDictionary<Guid, Guid> PoolerCommuterMapping { get; private set; }
         public IDictionary<Guid, Trip> OngoingTrips { get; private set; }
 
-        public EngineState()
+        private EngineState()
         {
             CommuterRequestProcessTable = new Dictionary<Guid, CommuterRequestProcessModel>();
             PoolerCommuterMapping = new Dictionary<Guid, Guid>();
+        }
+
+        public static EngineState Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new EngineState();
+                }
+                return _instance;
+            }
         }
 
         public MethodResponse AddCommuterToState(TripRequest tripRequest, IList<Coordinate> route)
         {
             try
             {
-                var trip = new Trip
-                {
-                    GoingTo = tripRequest.GoingTo,
-                    Owner = tripRequest.Commuter,
-                    Passengers = new List<Commuter>(tripRequest.Commuter.Vehicle.MaxPassengerCount)
-                };
-                
+                var commuterRequestProcess = new CommuterRequestProcessModel(tripRequest, route);
                 lock (baton)
                 {
                     if (CommuterRequestProcessTable.Keys.Contains(tripRequest.Commuter.CommuterId))
                     {
-                        return new MethodResponse(true);
+                        return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
                     }
                     CommuterRequestProcessTable.Add(tripRequest.Commuter.CommuterId,
-                        new CommuterRequestProcessModel(trip, route));
+                        commuterRequestProcess);
                 }
-                return new MethodResponse(true);
-
+                return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
             }
             catch (Exception ex)
             {

@@ -1,4 +1,4 @@
-﻿namespace Bot.Data
+﻿namespace Bot.Data.Models
 {
     public class Vehicle
     {

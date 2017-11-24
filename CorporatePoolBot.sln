@@ -15,6 +15,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineTestTool", "EngineTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.External", "Bot.External\Bot.External.csproj", "{5811A0BF-D14B-4EE5-881A-06D71B5332D8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C5DE0D2D-6BD6-45C9-8BC1-4BC21CA7576A}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D1977B46-16D5-432C-98CF-1EDDAC7AA3F0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bus", "Bus", "{A790F950-4A03-4CE4-9F11-E5B5FBE1868D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.MessagingFramework", "Bot.MessageBus\Bot.MessagingFramework.csproj", "{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagingBusUnitTests", "MessagingBusUnitTests\MessagingBusUnitTests.csproj", "{1CEF083F-8E45-4268-8CE0-96A903325B3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemTests", "SystemTests\SystemTests.csproj", "{45A23F6C-0287-4736-9FA0-3F13CF63423B}"
+EndProject
 Global
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
@@ -48,8 +63,26 @@ Global
 		{5811A0BF-D14B-4EE5-881A-06D71B5332D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5811A0BF-D14B-4EE5-881A-06D71B5332D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5811A0BF-D14B-4EE5-881A-06D71B5332D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CEF083F-8E45-4268-8CE0-96A903325B3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CEF083F-8E45-4268-8CE0-96A903325B3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CEF083F-8E45-4268-8CE0-96A903325B3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CEF083F-8E45-4268-8CE0-96A903325B3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45A23F6C-0287-4736-9FA0-3F13CF63423B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45A23F6C-0287-4736-9FA0-3F13CF63423B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45A23F6C-0287-4736-9FA0-3F13CF63423B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45A23F6C-0287-4736-9FA0-3F13CF63423B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1C69E92C-5D81-4451-80FB-A3C49B44612B} = {D1977B46-16D5-432C-98CF-1EDDAC7AA3F0}
+		{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50} = {A790F950-4A03-4CE4-9F11-E5B5FBE1868D}
+		{1CEF083F-8E45-4268-8CE0-96A903325B3A} = {A790F950-4A03-4CE4-9F11-E5B5FBE1868D}
+		{45A23F6C-0287-4736-9FA0-3F13CF63423B} = {D1977B46-16D5-432C-98CF-1EDDAC7AA3F0}
 	EndGlobalSection
 EndGlobal
