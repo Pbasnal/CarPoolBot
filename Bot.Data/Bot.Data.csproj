@@ -51,7 +51,12 @@
   <ItemGroup>
     <Compile Include="CommuterStatus.cs" />
     <Compile Include="Coordinate.cs" />
-    <Compile Include="Models\DatabaseContext.cs" />
+    <Compile Include="EfModels\EfCommuter.cs" />
+    <Compile Include="EfModels\DatabaseContext.cs" />
+    <Compile Include="EfModels\EfCoordinate.cs" />
+    <Compile Include="EfModels\EfTrip.cs" />
+    <Compile Include="EfModels\EfTripRequest.cs" />
+    <Compile Include="EfModels\EfVehicle.cs" />
     <Compile Include="GoingHow.cs" />
     <Compile Include="GoingTo.cs" />
     <Compile Include="PoolingMath.cs" />

@@ -1,4 +1,5 @@
-﻿using Bot.Data.Models;
+﻿using Bot.Data.EfModels;
+using Bot.Data.Models;
 using Bot.Models.Internal;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace Bot.Data
 
             using (var ctx = new DatabaseContext())
             {
-                ctx.Commuters.Add(commuter);
+                ctx.EfCommuters.Add((EfCommuter)commuter);
                 ctx.SaveChanges();
             }
         }
@@ -42,7 +43,7 @@ namespace Bot.Data
             {
                 try
                 {
-                    ctx.Commuters.Add(commuter);
+                    ctx.EfCommuters.Add((EfCommuter)commuter);
                     ctx.SaveChanges();
                 }
                 catch (Exception ex)

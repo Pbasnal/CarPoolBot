@@ -1,12 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Bot.Data.Models
 {
     public class Trip
     {
-        public GoingTo GoingTo;
-        public Commuter Owner;
-        public IList<Commuter> Passengers;
+        [Key]
+        public Guid TripId { get; set; }
+
+        public GoingTo GoingTo { get; set; }
+        public Commuter Owner { get; set; }
+        public IList<Commuter> Passengers { get; set; }
+
+        public Trip()
+        {
+            TripId = Guid.NewGuid();
+        }
 
         public Coordinate Origin
         {

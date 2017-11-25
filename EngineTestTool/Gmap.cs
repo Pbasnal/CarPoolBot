@@ -29,8 +29,8 @@ namespace EngineTestTool
 
         int CountIncrement = 500;
         
-        int MAX_COMMUTER_COUNT = 100;
-        int MAX_POOLER_COUNT = 1000;
+        int MAX_COMMUTER_COUNT = 10;
+        int MAX_POOLER_COUNT = 100;
 
         Random random = new Random();
         IDictionary<Coordinate, IList<Commuter>> CommuterDataSet;

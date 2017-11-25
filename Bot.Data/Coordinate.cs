@@ -1,9 +1,14 @@
-﻿namespace Bot.Data
+﻿using Bot.Data.EfModels;
+using Bot.Data.Models;
+using System;
+
+namespace Bot.Data
 {
     public struct Coordinate
     {
-        public double Latitude;
-        public double Longitude;
+        public double Latitude { get; set; }
+
+        public double Longitude { get; set; }
 
         public Coordinate(double lat, double lng)
         {
@@ -21,13 +26,18 @@
 
         public override bool Equals(object other)
         {
-            return other is Coordinate ? Equals((Coordinate)other) : false;
+            return other is Coordinate ? Equals(other) : false;
         }
 
         public bool Equals(Coordinate other)
         {
             return Latitude == other.Latitude &&
                    Longitude == other.Longitude;
+        }
+
+        public static explicit operator Coordinate(EfCoordinate efcoordinate)  // explicit byte to digit conversion operator
+        {
+            return new Coordinate(efcoordinate.Latitude, efcoordinate.Longitude);
         }
     }
 }
