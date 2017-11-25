@@ -54,7 +54,7 @@ namespace CorporatePoolBot.Dialogs
             {
                 //start a new trip for the user
                 FacebookMessage fbmessage = JsonConvert.DeserializeObject<FacebookMessage>(message.ChannelData.ToString());
-                Commuter owner = CommuterManager.GetCommuter(new Guid(fbmessage.sender.id));
+                Commuter owner = CommuterManager.Instance.GetCommuter(new Guid(fbmessage.sender.id)).ResultData;
                 if (owner == null)
                 {
                     await context.PostAsync("You are not yet onboarded");
@@ -67,7 +67,7 @@ namespace CorporatePoolBot.Dialogs
                     context.Done("trip did not start");
                     return;
                 }
-                trip = TripManager.TripsList.StartNewTrip(owner);
+                trip = TripManager.TripsList.StartNewTrip(owner).ResultData;
                 await context.PostAsync("Trip started " + JsonConvert.SerializeObject(trip));
                 context.Done("Trip started");
             }

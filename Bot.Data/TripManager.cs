@@ -1,9 +1,9 @@
-﻿using Bot.Data.Models;
+﻿using Bot.Data.DatastoreInterface;
+using Bot.Data.EfModels;
+using Bot.Data.Models;
+using Bot.Models.Internal;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bot.Data
 {
@@ -11,8 +11,12 @@ namespace Bot.Data
     {
         private static TripManager tripsList = null;
 
+        IStoreTrips TripsStore;
+
         private TripManager()
-        { }
+        {
+            TripsStore = new DatabaseContext();
+        }
 
         public static TripManager TripsList
         {
@@ -28,32 +32,43 @@ namespace Bot.Data
 
         public IDictionary<Guid, Trip> CarPoolTrip = new Dictionary<Guid, Trip>();
 
-        public Trip StartNewTrip(Commuter owner)
+        public MethodResponse<Trip> StartNewTrip(Commuter owner)
         {
             if (owner.Vehicle.MaxPassengerCount - owner.Vehicle.OccupiedSeats == 0)
-                return null;
+                return new MethodResponse<Trip>(null);
+
             var trip = new Trip();
             trip.Owner = owner;
             trip.Passengers = new List<Commuter>();
             owner.Vehicle.OccupiedSeats++;
 
-            CarPoolTrip.Add(owner.CommuterId, trip);
+            var result = TripsStore.AddTripsAsync(new List<Trip> { trip }).Result;
 
-            return trip;
+            if (result)
+            {
+                CarPoolTrip.Add(owner.CommuterId, trip);
+                return new MethodResponse<Trip>(trip);
+            }
+            return new MethodResponse<Trip>(null);
         }
 
         // future scope: adding multiple passengers
-        public bool AddCommuterToTrip(Commuter owner, Commuter passenger)
+        public MethodResponse<Trip> AddPassengerToTrip(Commuter owner, Commuter passenger)
         {
             Trip trip;
             if (!CarPoolTrip.TryGetValue(owner.CommuterId, out trip))
-                return false;
+                return new MethodResponse<Trip>(null); 
 
             if (trip.Passengers.Count >= owner.Vehicle.MaxPassengerCount)
-                return false;
+                return new MethodResponse<Trip>(null); ;
 
-            trip.Passengers.Add(passenger);
-            return true;
+            if (TripsStore.UpdateTripsAsync(new List<Trip> { trip }).Result)
+            {
+                trip.Passengers.Add(passenger);
+                return new MethodResponse<Trip>(trip);
+            }
+
+            return new MethodResponse<Trip>(null);
         }
     }
 }

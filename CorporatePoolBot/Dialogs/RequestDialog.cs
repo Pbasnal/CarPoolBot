@@ -95,14 +95,14 @@ namespace CorporatePoolBot.Dialogs
         {
             TripRequest request = new TripRequest
             {
-                Commuter = CommuterManager.GetCommuter(new Guid(activity.From.Id)),
+                Commuter = CommuterManager.Instance.GetCommuter(new Guid(activity.From.Id)).ResultData,
                 GoingHow = this.GoingHow,
                 GoingTo = this.GoingTo,
                 RequestTime = DateTime.UtcNow,
                 WaitTime = TimeSpan.FromMinutes(15)
             };
 
-            TripRequestManager.AddTripRequest(request);
+            TripRequestManager.Instance.AddTripRequest(request);
         }
     }
 }

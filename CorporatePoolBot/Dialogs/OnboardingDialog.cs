@@ -31,7 +31,7 @@ namespace CorporatePoolBot.Dialogs
                 commuter.MediaId = activity.From.Id;
                 commuter.CommuterId = Guid.NewGuid();
 
-                CommuterManager.AddCommuter(commuter);
+                CommuterManager.Instance.AddCommuter(commuter);
 
                 // should check if the vehicle has been onboarded
                 await context.PostAsync("Do you own a vehicle?(yes/no)");
@@ -78,9 +78,9 @@ namespace CorporatePoolBot.Dialogs
             {
                 var activity = await result as Activity;
                 var msgText = activity.Text == null ? string.Empty : activity.Text;
-                var commuter = CommuterManager.GetCommuter(activity.From.Id);
+                var commuter = CommuterManager.Instance.GetCommuter(activity.From.Id).ResultData;
+                
                 // can we get the previous method
-
                 if (commuter.Vehicle == null || !commuter.Vehicle.VehicleOnboarded)
                 {   
                     switch (msgText.ToLower())
@@ -116,7 +116,7 @@ namespace CorporatePoolBot.Dialogs
                 var activity = await result as Activity;
                 var msgText = activity.Text == null ? "-1" : activity.Text;
                 int count;
-                var commuter = CommuterManager.GetCommuter(activity.From.Id);
+                var commuter = CommuterManager.Instance.GetCommuter(activity.From.Id).ResultData;
                 if (commuter.Vehicle != null || !commuter.Vehicle.VehicleOnboarded)
                 {
                     if (Int32.TryParse(msgText, out count))
@@ -152,7 +152,7 @@ namespace CorporatePoolBot.Dialogs
                 var activity = await result as Activity;
                 var msgText = activity.Text;
                 int option;
-                var commuter = CommuterManager.GetCommuter(activity.From.Id);
+                var commuter = CommuterManager.Instance.GetCommuter(activity.From.Id).ResultData;
 
                 if (Int32.TryParse(msgText, out option))
                 {
@@ -160,7 +160,7 @@ namespace CorporatePoolBot.Dialogs
                     {
                         case 1:
                             Office = "Microsoft";
-                            CommuterManager.AddOfficeOfCommuter(commuter, new Coordinate(17.4318848, 78.34318));
+                            CommuterManager.Instance.AddOfficeOfCommuter(commuter, new Coordinate(17.4318848, 78.34318));
                             await context.PostAsync("Send your home location");
                             context.Wait(WhereDoYouLive);
                             break;
@@ -175,7 +175,7 @@ namespace CorporatePoolBot.Dialogs
                     if (msgText.ToLower().Equals("microsoft"))
                     {
                         Office = "Microsoft";
-                        CommuterManager.AddOfficeOfCommuter(commuter, new Coordinate(17.4318848, 78.34318));
+                        CommuterManager.Instance.AddOfficeOfCommuter(commuter, new Coordinate(17.4318848, 78.34318));
                         await context.PostAsync("Send your home location");
                         context.Wait(WhereDoYouLive);
                         return;
@@ -211,11 +211,11 @@ namespace CorporatePoolBot.Dialogs
                 }
                 else
                 {
-                    var commuter = CommuterManager.GetCommuter(activity.From.Id);
+                    var commuter = CommuterManager.Instance.GetCommuter(activity.From.Id).ResultData;
                     var homeCoordinate = new Coordinate(facebookMessage.message.attachments[0].payload.coordinates.lat,
                         facebookMessage.message.attachments[0].payload.coordinates.@long);
 
-                    CommuterManager.AddHouseOfCommuter(commuter, homeCoordinate);
+                    CommuterManager.Instance.AddHouseOfCommuter(commuter, homeCoordinate);
                 }
                 context.Done("Onboarding is complete");
             }

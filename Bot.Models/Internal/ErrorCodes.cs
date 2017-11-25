@@ -4,6 +4,9 @@
     {
         // 1*** for errors, 2*** for success
         public const int InvalidInputParameter = 1001;
+        public const int InvalidResponseObject = 1002;
+        public const int InternalProcessError = 1003;
+
         public const int TripStarted = 2001;
         public const int TripDidNotStart = 2001;
         public const int SuccessDoNotRetry = 2002;
