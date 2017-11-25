@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Bot.Data.EfModels;
 
 namespace Bot.Data.Models
 {

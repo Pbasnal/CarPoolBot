@@ -21,5 +21,10 @@ namespace Bot.Data.EfModels
         {
             return new EfCoordinate(coordinate);
         }
+
+        public Coordinate GetCoordinate()
+        {
+            return new Coordinate(Latitude, Longitude);
+        }
     }
 }

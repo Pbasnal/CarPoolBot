@@ -30,5 +30,19 @@ namespace Bot.Data.EfModels
         {
             return new EfCommuter(commuter);
         }
+
+        public Commuter GetCommuter()
+        {
+            return new Commuter
+            {
+                CommuterId = CommuterId,
+                CommuterName = CommuterName,
+                HomeCoordinate = HomeCoordinate.GetCoordinate(),
+                OfficeCoordinate = OfficeCoordinate.GetCoordinate(),
+                MediaId = MediaId,
+                Status = Status,
+                Vehicle = Vehicle.GetVehicle()
+            };
+        }
     }
 }

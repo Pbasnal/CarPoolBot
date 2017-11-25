@@ -4,7 +4,8 @@
     {
         public const string UserAuthenticationSuccessful = "User was authenticated successfully";
 
-
         public const string CommuterDoesNotExists = "Commuter does not exists";
+
+        public const string InvalidResponseObject = "Invalid response object";
     }
 }

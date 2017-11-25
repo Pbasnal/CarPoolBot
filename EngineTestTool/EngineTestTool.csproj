@@ -95,31 +95,13 @@
     <Compile Include="Gmap.Designer.cs">
       <DependentUpon>Gmap.cs</DependentUpon>
     </Compile>
-    <Compile Include="ParallelTest.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ParallelTest.Designer.cs">
-      <DependentUpon>ParallelTest.cs</DependentUpon>
-    </Compile>
     <Compile Include="RequestOwnerToAcceptPoolersHandler.cs" />
-    <Compile Include="TestTool.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TestTool.Designer.cs">
-      <DependentUpon>TestTool.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TripStartedHandler.cs" />
     <Compile Include="VehicleOwnerAddedToStateHandler.cs" />
     <EmbeddedResource Include="Gmap.resx">
       <DependentUpon>Gmap.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ParallelTest.resx">
-      <DependentUpon>ParallelTest.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestTool.resx">
-      <DependentUpon>TestTool.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -26,7 +26,7 @@ namespace Bot.Data
 
         public override bool Equals(object other)
         {
-            return other is Coordinate ? Equals(other) : false;
+            return other is Coordinate ? Equals((Coordinate)other) : false;
         }
 
         public bool Equals(Coordinate other)

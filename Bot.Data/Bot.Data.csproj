@@ -51,6 +51,9 @@
   <ItemGroup>
     <Compile Include="CommuterStatus.cs" />
     <Compile Include="Coordinate.cs" />
+    <Compile Include="DatastoreInterface\IStoreCommuters.cs" />
+    <Compile Include="DatastoreInterface\IStoreTripRequests.cs" />
+    <Compile Include="DatastoreInterface\IStoreTrips.cs" />
     <Compile Include="EfModels\EfCommuter.cs" />
     <Compile Include="EfModels\DatabaseContext.cs" />
     <Compile Include="EfModels\EfCoordinate.cs" />

@@ -1,4 +1,5 @@
-﻿using Bot.Data.EfModels;
+﻿using Bot.Data.DatastoreInterface;
+using Bot.Data.EfModels;
 using Bot.Data.Models;
 using Bot.Models.Internal;
 using System;
@@ -10,88 +11,132 @@ namespace Bot.Data
     [Serializable]
     public class CommuterManager
     {
-        private static IDictionary<Guid, Commuter> commuters = new Dictionary<Guid, Commuter>();
+        private static CommuterManager _commuterManager;
+        private IDictionary<Guid, Commuter> commuters = new Dictionary<Guid, Commuter>();
+
+        private IStoreCommuters CommutersStore = new DatabaseContext();
 
         private CommuterManager()
-        {}
+        { }
 
-        public static IDictionary<Guid, Commuter> CommutersList { get; private set; }
+        public static CommuterManager Instance
+        {
+            get
+            {
+                if (_commuterManager == null)
+                    _commuterManager = new CommuterManager();
+                return _commuterManager;
+            }
+            set
+            { }
+        }
 
-        public static void AddMicrosotCommuter(Commuter commuter)
+        public IDictionary<Guid, Commuter> CommutersList { get; private set; }
+
+        public MethodResponse<Commuter> AddMicrosotCommuter(Commuter commuter)
         {
             var office = new Coordinate();
             office.Latitude = 17.4318848;
             office.Longitude = 78.34318;
 
             commuter.OfficeCoordinate = office;
-            commuters.Add(commuter.CommuterId, commuter);
 
-            using (var ctx = new DatabaseContext())
+            var result = CommutersStore.AddCommutersAsync(new List<Commuter> { commuter }).Result;
+
+            if (result)
             {
-                ctx.EfCommuters.Add((EfCommuter)commuter);
-                ctx.SaveChanges();
+                commuters.Add(commuter.CommuterId, commuter);
+                return new MethodResponse<Commuter>(commuter);
             }
+
+            return new MethodResponse<Commuter>(null);
         }
 
-        public static void AddCommuter(Commuter commuter)
+        public MethodResponse<Commuter> AddCommuter(Commuter commuter)
         {
-            var office = new Coordinate();
-            commuter.OfficeCoordinate = office;
-            commuters.Add(commuter.CommuterId, commuter);
+            var result = CommutersStore.AddCommutersAsync(new List<Commuter> { commuter }).Result;
 
-            using (var ctx = new DatabaseContext())
+            if (result)
             {
-                try
-                {
-                    ctx.EfCommuters.Add((EfCommuter)commuter);
-                    ctx.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    var str = ex.Message;
-                }
-
+                commuters.Add(commuter.CommuterId, commuter);
+                return new MethodResponse<Commuter>(commuter);
             }
+
+            return new MethodResponse<Commuter>(null);
         }
 
-        public static MethodResponse AddOfficeOfCommuter(Commuter inCommuter, Coordinate officeCoordinate)
+        public MethodResponse<Commuter> AddOfficeOfCommuter(Commuter inCommuter, Coordinate officeCoordinate)
         {
             Commuter commuter;
             if (!commuters.TryGetValue(inCommuter.CommuterId, out commuter))
-                return new MethodResponse(false, ResponseCodes.InvalidInputParameter, ResponseMessages.CommuterDoesNotExists );
+                return new MethodResponse<Commuter>(false, ResponseCodes.InvalidInputParameter, ResponseMessages.CommuterDoesNotExists);
 
+            //improve this
+            var oldValue = commuter.OfficeCoordinate;
             commuter.OfficeCoordinate = officeCoordinate;
-            return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
+
+            var result = CommutersStore.UpdateCommutersAsync(new List<Commuter> { commuter }).Result;
+
+            if (result)
+            {
+                commuters.Add(commuter.CommuterId, commuter);
+                return new MethodResponse<Commuter>(commuter);
+            }
+            //revertiung if db didn't get updated
+            commuter.OfficeCoordinate = oldValue;
+            return new MethodResponse<Commuter>(null);
         }
 
-        public static MethodResponse AddHouseOfCommuter(Commuter inCommuter, Coordinate homeCoordinate)
+        public MethodResponse<Commuter> AddHouseOfCommuter(Commuter inCommuter, Coordinate homeCoordinate)
         {
             Commuter commuter;
             if (!commuters.TryGetValue(inCommuter.CommuterId, out commuter))
-                return new MethodResponse(false, ResponseCodes.InvalidInputParameter, ResponseMessages.CommuterDoesNotExists);
+                return new MethodResponse<Commuter>(false, ResponseCodes.InvalidInputParameter, ResponseMessages.CommuterDoesNotExists);
 
+
+            //improve this
+            var oldValue = commuter.OfficeCoordinate;
             commuter.HomeCoordinate = homeCoordinate;
-            return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
-        }
 
-        public static Commuter GetCommuter(Guid commuterId)
-        {
-            if (commuters == null || commuters.Count == 0)
-                return null;
-            return commuters[commuterId];
-        }
+            var result = CommutersStore.UpdateCommutersAsync(new List<Commuter> { commuter }).Result;
 
-        public static Commuter GetCommuter(string mediaId)
-        {
-            if (commuters == null || commuters.Count == 0)
-                return null;
-            foreach (var commuter in commuters)
+            if (result)
             {
-                if (commuter.Value.MediaId == mediaId)
-                    return commuter.Value;
+                commuters.Add(commuter.CommuterId, commuter);
+                return new MethodResponse<Commuter>(commuter);
+            }
+            //revertiung if db didn't get updated
+            commuter.HomeCoordinate = oldValue;
+            return new MethodResponse<Commuter>(null);
+        }
+
+        public MethodResponse<Commuter> GetCommuter(Guid commuterId)
+        {
+            if (commuters == null || commuters.Count == 0)
+                return new MethodResponse<Commuter>(null);
+            // later to be used with cache
+            //return commuters[commuterId];
+            var resultCommuters = CommutersStore.GetCommuters(new List<Guid> { commuterId }).Result;
+            if (resultCommuters.Count == 1)
+            {
+                return new MethodResponse<Commuter>(resultCommuters[0]);
             }
 
-            return null;
+            return new MethodResponse<Commuter>(null);
+        }
+
+        public MethodResponse<Commuter> GetCommuter(string mediaId)
+        {
+            if (commuters == null || commuters.Count == 0)
+                return new MethodResponse<Commuter>(null);
+
+            var resultCommuters = CommutersStore.GetCommutersForMediaIds(new List<string> { mediaId }).Result;
+            if (resultCommuters.Count == 1)
+            {
+                return new MethodResponse<Commuter>(resultCommuters[0]);
+            }
+
+            return new MethodResponse<Commuter>(null);
         }
     }
 }

@@ -27,5 +27,17 @@ namespace Bot.Data.EfModels
         {
             return new EfVehicle(vehicle);
         }
+
+        public Vehicle GetVehicle()
+        {
+            return new Vehicle
+            {
+                MaxPassengerCount = MaxPassengerCount,
+                OccupiedSeats = OccupiedSeats,
+                VehicleId = VehicleId,
+                VehicleNumber = VehicleNumber,
+                VehicleOnboarded = VehicleOnboarded
+            };
+        }
     }
 }

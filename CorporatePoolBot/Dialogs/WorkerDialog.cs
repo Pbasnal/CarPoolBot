@@ -19,7 +19,7 @@ namespace CorporatePoolBot.Dialogs
             try
             {
                 await context.PostAsync("Starting the worker");
-                PoolingEngine.Instance.QueuePoolingRequest();
+                //PoolingEngine.Instance.QueuePoolingRequest();
                 await context.PostAsync("Started the worker");
 
                 context.Wait(ReturnCurrentStateOfWorker);

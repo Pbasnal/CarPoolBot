@@ -49,11 +49,15 @@ namespace Bot.Worker.Core
                 return; // we need to put this in retry list
             }
 
+
+            if (!TripRequestManager.Instance.UpdateRequestStatus(tripOwnerRequest, RequestStatus.InProcess))
+            {
+                return;
+            }
             if (!_engineState.AddCommuterToState(tripOwnerRequest, route).IsSuccess)
             {
                 return;
             }
-            TripRequestManager.UpdateRequestStatus(tripOwnerRequest, RequestStatus.InProcess);
 
             MessageBus.Instance.Publish(new VehicleOwnerAddedToStateMessage
             {
@@ -82,7 +86,7 @@ namespace Bot.Worker.Core
                 var tripInRequest = commuterRequestProcess.PoolerRequests
                     .First(x => x.TripRequest.Commuter.CommuterId == poolRequest.TripRequest.Commuter.CommuterId);
                 tripInRequest.Status = TripRequestStatus.Requested;
-                TripRequestManager.UpdateRequestStatus(poolRequest.TripRequest, RequestStatus.InProcess);
+                TripRequestManager.Instance.UpdateRequestStatus(poolRequest.TripRequest, RequestStatus.InProcess);
             }
             MessageBus.Instance.Publish(new ReqestOwnerToAcceptPoolersMessage
             {
@@ -100,7 +104,7 @@ namespace Bot.Worker.Core
             while (numberOfPoolersNeeded > 0 && !commuterRequestProcess.LastNodeReached)
             {
                 var currentNode = commuterRequestProcess.CurrentNode;
-                IList<TripRequest> poolersForCurrentNode = TripRequestManager.GetInitializedPoolerRequestsForCoordinate(currentNode).ToList();
+                IList<TripRequest> poolersForCurrentNode = TripRequestManager.Instance.GetInitializedPoolerRequestsForCoordinate(currentNode).ToList();
 
                 foreach (var poolRequest in poolersForCurrentNode)
                 {
@@ -110,7 +114,7 @@ namespace Bot.Worker.Core
                     commuterRequestProcess.PoolerRequests.Add(tripRequestInProcess);
                     _engineState.PoolerCommuterMapping.Add(poolRequest.Commuter.CommuterId,
                         commuterRequestProcess.Trip.Owner.CommuterId);
-                    TripRequestManager.UpdateRequestStatus(poolRequest, RequestStatus.Waiting);
+                    TripRequestManager.Instance.UpdateRequestStatus(poolRequest, RequestStatus.Waiting);
                     numberOfPoolersNeeded--;
 
                     if (numberOfPoolersNeeded <= 0)
@@ -160,7 +164,7 @@ namespace Bot.Worker.Core
                     Trip = commuterRequestProcess.Trip,
                     Route = commuterRequestProcess.CompleteRoute
                 });
-                TripRequestManager.UpdateRequestStatus(message.TripRequest, RequestStatus.InTrip);
+                TripRequestManager.Instance.UpdateRequestStatus(message.TripRequest, RequestStatus.InTrip);
                 return methodResponse;
             }
             if (methodResponse.ResponseCode == ResponseCodes.SuccessCanRetry)
@@ -182,11 +186,11 @@ namespace Bot.Worker.Core
             {
                 // enginecore should only tell which request manager that the pooler doesn't need to wait anymore
                 // manager should decide which state to put the pooler in
-                TripRequestManager.UpdateRequestStatus(poolRequest.TripRequest, RequestStatus.InProcess);
+                TripRequestManager.Instance.UpdateRequestStatus(poolRequest.TripRequest, RequestStatus.InProcess);
             }
             _engineState.OngoingTrips.Add(commuterRequest.Commuter.CommuterId, commuterRequestProcess.Trip);
             _engineState.CommuterRequestProcessTable.Remove(commuterRequest.Commuter.CommuterId);
-            TripRequestManager.UpdateRequestStatus(commuterRequest, RequestStatus.InTrip);
+            TripRequestManager.Instance.UpdateRequestStatus(commuterRequest, RequestStatus.InTrip);
 
             return new MethodResponse(true, ResponseCodes.TripStarted, string.Empty);
         }
@@ -196,7 +200,7 @@ namespace Bot.Worker.Core
             foreach (var poolRequest in commuterRequestProcess
                 .PoolerRequests.Where(x => x.Status == TripRequestStatus.Requested))
             {
-                TripRequestManager.UpdateRequestStatus(poolRequest.TripRequest, RequestStatus.Initialized);
+                TripRequestManager.Instance.UpdateRequestStatus(poolRequest.TripRequest, RequestStatus.Initialized);
                 commuterRequestProcess.PoolerRequests.Remove(poolRequest);
             }
         }
@@ -218,7 +222,7 @@ namespace Bot.Worker.Core
             {
                 acceptedPoolerRequests.Add(commuterRequestProcess.PoolerRequests[index].TripRequest);
                 commuterRequestProcess.Trip.AddPassenger(commuterRequestProcess.PoolerRequests[index].TripRequest.Commuter);
-                TripRequestManager.UpdateRequestStatus(commuterRequestProcess.PoolerRequests[index].TripRequest, RequestStatus.InTrip);
+                TripRequestManager.Instance.UpdateRequestStatus(commuterRequestProcess.PoolerRequests[index].TripRequest, RequestStatus.InTrip);
 
                 MessageBus.Instance.Publish(new PoolerAddToTripMessage
                 {
@@ -250,7 +254,7 @@ namespace Bot.Worker.Core
                 var tripInRequest = commuterRequestProcess.PoolerRequests
                     .First(x => x.TripRequest.Commuter.CommuterId == poolRequest.TripRequest.Commuter.CommuterId);
                 tripInRequest.Status = TripRequestStatus.Requested;
-                TripRequestManager.UpdateRequestStatus(poolRequest.TripRequest, RequestStatus.InProcess);
+                TripRequestManager.Instance.UpdateRequestStatus(poolRequest.TripRequest, RequestStatus.InProcess);
             }
 
             return poolersToRequest.Select(x => x.TripRequest).ToList();

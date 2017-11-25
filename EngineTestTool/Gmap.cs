@@ -30,7 +30,7 @@ namespace EngineTestTool
         int CountIncrement = 500;
         
         int MAX_COMMUTER_COUNT = 10;
-        int MAX_POOLER_COUNT = 100;
+        int MAX_POOLER_COUNT = 200;
 
         Random random = new Random();
         IDictionary<Coordinate, IList<Commuter>> CommuterDataSet;
@@ -84,13 +84,13 @@ namespace EngineTestTool
             CommuterDataSet = new Dictionary<Coordinate, IList<Commuter>>();
             PoolerDataSet = new Dictionary<Coordinate, IList<Commuter>>();
 
-            TripRequestManager.ClearAllRequests();
+            TripRequestManager.Instance.ClearAllRequests();
 
             // generating random people who will pool
             for (int i = 0; i < MAX_POOLER_COUNT; i++)
             {
                 var request = GetRandomRequest(GoingHow.Pool, GoingTo.Office);
-                TripRequestManager.AddTripRequest(request);
+                TripRequestManager.Instance.AddTripRequest(request);
 
                 var keyPoint = GetKeyPoint(request.Commuter.HomeCoordinate);
 
@@ -111,7 +111,7 @@ namespace EngineTestTool
                     continue;
                 }
 
-                TripRequestManager.AddTripRequest(request);
+                TripRequestManager.Instance.AddTripRequest(request);
                 CommutersRequest.Add(request);
 
                 var keyPoint = GetKeyPoint(request.Commuter.HomeCoordinate);
@@ -350,16 +350,6 @@ namespace EngineTestTool
             }
         }
 
-        private void DisplayState()
-        {
-            var state = PoolingEngine.Instance.State;
-            var totalCommuter = state.CommuterRequestProcessTable.Count;
-            var totalProcessedCommuters = state.CommuterRequestProcessTable.Values.Where(x => x.Trip.Owner.Status == CommuterStatus.InTrip).Count();
-
-            stateText.Text = "Total Commuters : " + totalCommuter + "\n" +
-                "Total Processed Commuters : " + totalProcessedCommuters;
-        }
-
         //public void DisplayTrip(TripRequest request)
         //{
         //    ClearMap();
@@ -473,6 +463,11 @@ namespace EngineTestTool
             DisplayTrip(message);
 
             RefreshPassengerTree(commuterId);
+        }
+
+        public void UpdateState(int totalProcessed)
+        {
+            stateText.Text = "Total processed commuters : " + totalProcessed;
         }
     }
 }
