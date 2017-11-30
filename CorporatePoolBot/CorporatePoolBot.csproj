@@ -123,6 +123,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="MessageHandlers\RequestOwnerToAcceptPoolersHandler.cs" />
+    <Compile Include="MessageHandlers\TripStartedHandler.cs" />
+    <Compile Include="MessageHandlers\VehicleOwnerAddedToStateHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -144,6 +147,10 @@
     <ProjectReference Include="..\Bot.External\Bot.External.csproj">
       <Project>{5811A0BF-D14B-4EE5-881A-06D71B5332D8}</Project>
       <Name>Bot.External</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bot.MessageBus\Bot.MessagingFramework.csproj">
+      <Project>{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}</Project>
+      <Name>Bot.MessagingFramework</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bot.Models\Bot.Models.csproj">
       <Project>{11E1325C-C459-45C9-A5BF-BABD9D7FE201}</Project>

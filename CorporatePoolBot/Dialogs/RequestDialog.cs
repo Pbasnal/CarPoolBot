@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Connector;
 using Bot.Data;
 using Bot.Data.Models;
+using Bot.MessagingFramework;
+using Bot.Worker.Messages;
 
 namespace CorporatePoolBot.Dialogs
 {
@@ -63,26 +65,30 @@ namespace CorporatePoolBot.Dialogs
 
                 if (GoingHow != GoingHow.Walk)
                 {
-                    if (msgText.ToLower().Equals("drive"))
-                    {
-                        GoingHow = GoingHow.Drive;
-                        await context.PostAsync("You have chosen to drive");
-                        CreateTripRequest(activity);
-                        context.Done("User request created");
-                    }
-                    else if (msgText.ToLower().Equals("join"))
-                    {
-                        GoingHow = GoingHow.Pool;
-                        await context.PostAsync("You have chosen to join");
-                        CreateTripRequest(activity);
-                        context.Done("User request created");
-                    }
-                    else
-                    {
-                        await context.PostAsync("Do you want to drive or join?");
-                        context.Wait(WhichTransportMode);
-                    }
+                    await context.PostAsync("Will start the trip to home. Do you want to drive or join?");
+                    context.Wait(WhichTransportMode);
+                    return;
                 }
+                if (msgText.ToLower().Equals("drive"))
+                {
+                    GoingHow = GoingHow.Drive;
+                    await context.PostAsync("You have chosen to drive");
+                    CreateTripRequest(activity);
+                    context.Done("User request created");
+                }
+                else if (msgText.ToLower().Equals("join"))
+                {
+                    GoingHow = GoingHow.Pool;
+                    await context.PostAsync("You have chosen to join");
+                    CreateTripRequest(activity);
+                    context.Done("User request created");
+                }
+                else
+                {
+                    await context.PostAsync("Do you want to drive or join?");
+                    context.Wait(WhichTransportMode);
+                }
+
             }
             catch (Exception ex)
             {
@@ -102,6 +108,13 @@ namespace CorporatePoolBot.Dialogs
                 WaitTime = TimeSpan.FromMinutes(15)
             };
 
+            if (GoingHow == GoingHow.Drive)
+            {
+                MessageBus.Instance.Publish(new ProcessTripOwnerRequestMessage
+                {
+                    TripOwnerRequest = request
+                });
+            }
             TripRequestManager.Instance.AddTripRequest(request);
         }
     }

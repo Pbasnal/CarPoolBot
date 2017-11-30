@@ -217,7 +217,8 @@ namespace Bot.Data.EfModels
             {
                 try
                 {
-                    var efTripRequestsToUpdate = EfTripRequests.Where(x => tripRequests.Any(y => x.TripRequestId == y.TripRequestId)).ToList();
+                    var tripRequestIds = tripRequests.Select(x => x.TripRequestId).ToList();
+                    var efTripRequestsToUpdate = EfTripRequests.Where(x => tripRequestIds.Contains(x.TripRequestId)).ToList();
 
                     if (efTripRequestsToUpdate.Count != tripRequests.Count)
                         return false;
@@ -227,9 +228,6 @@ namespace Bot.Data.EfModels
                         var tripRequest = tripRequests.FirstOrDefault(x => x.TripRequestId == efTripRequest.TripRequestId);
                         if (tripRequest == null)
                             return false;
-                        efTripRequest.Commuter = (EfCommuter)tripRequest.Commuter;
-                        efTripRequest.GoingHow = tripRequest.GoingHow;
-                        efTripRequest.GoingTo = tripRequest.GoingTo;
                         efTripRequest.Status = tripRequest.Status;
                         efTripRequest.WaitTime = tripRequest.WaitTime;
                     }

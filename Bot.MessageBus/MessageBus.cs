@@ -1,12 +1,16 @@
-﻿using System;
+﻿using Bot.Extensions;
+using Bot.Logger;
+using Bot.MessagingFramework.Constants;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Bot.MessagingFramework
 {
     public class MessageBus
     {
         private IDictionary<string, IList<IMessageHandler>> messageHandlerTable;
+
+        private Queue<MessageBase> RetryQueue;
 
         private static MessageBus _instance;
 
@@ -25,8 +29,14 @@ namespace Bot.MessagingFramework
             messageHandlerTable = new Dictionary<string, IList<IMessageHandler>>();
         }
 
-        public void RegisterHandler(IMessageHandler handler, string messageType)
+        public void RegisterHandler(IMessageHandler handler, string messageType, Guid operationId, Guid flowId)
         {
+            new BotLogger(operationId, flowId, EventCodes.RegisteringNewHandler, handler.ToJsonString())
+            {
+                Message = messageType
+            }.Debug();
+
+
             if (messageHandlerTable.ContainsKey(messageType))
                 messageHandlerTable[messageType].Add(handler);
             else
@@ -44,6 +54,11 @@ namespace Bot.MessagingFramework
             {
                 handler.EnqueueMessage(message);
             }
+        }
+
+        public void AddToRetryQueue(MessageBase message)
+        {
+
         }
     }
 }

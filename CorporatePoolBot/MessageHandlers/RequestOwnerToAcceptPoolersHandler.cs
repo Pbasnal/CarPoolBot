@@ -4,7 +4,7 @@ using Bot.Worker.Messages;
 using System.Linq;
 using System;
 
-namespace EngineTestTool
+namespace CorporatePoolBot.MessageHandlers
 {
     public class RequestOwnerToAcceptPoolersHandler : MessageHandler<ReqestOwnerToAcceptPoolersMessage>
     {

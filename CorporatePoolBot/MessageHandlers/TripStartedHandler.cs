@@ -2,7 +2,7 @@
 using Bot.MessagingFramework;
 using Bot.Worker.Messages;
 
-namespace EngineTestTool
+namespace CorporatePoolBot.MessageHandlers
 {
     public class TripStartedHandler : MessageHandler<TripStartedMessage>
     {
@@ -14,9 +14,7 @@ namespace EngineTestTool
 
         public override void Handle(TripStartedMessage message)
         {
-            Program.Map.AddCommuterAndPassengersToList(message);
-            Program.Map.UpdateState(TotalProcessed++);
-            //Program.Map.DisplayTrip(message);
+            
         }
     }
 }

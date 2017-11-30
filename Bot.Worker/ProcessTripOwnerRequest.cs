@@ -1,4 +1,5 @@
 ﻿using Bot.MessagingFramework;
+using Bot.Models.Internal;
 using Bot.Worker.Core;
 using Bot.Worker.Messages;
 using System;
@@ -10,8 +11,9 @@ namespace Bot.Worker
     {
         private EngineCoreSingleRequest _core;
 
-        public ProcessTripOwnerRequest()
+        public ProcessTripOwnerRequest(Guid operationId, Guid flowId) : base(operationId, flowId)
         {
+            
             _core = new EngineCoreSingleRequest();
         }
 

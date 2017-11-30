@@ -2,7 +2,7 @@
 using Bot.MessagingFramework;
 using Bot.Worker.Messages;
 
-namespace EngineTestTool
+namespace CorporatePoolBot.MessageHandlers
 {
     public class VehicleOwnerAddedToStateHandler : MessageHandler<VehicleOwnerAddedToStateMessage>
     {
@@ -12,8 +12,6 @@ namespace EngineTestTool
 
         public override void Handle(VehicleOwnerAddedToStateMessage message)
         {
-            var path = Program.Map.ConvertCoordinatesToPoint(message.Route.Waypoints);
-            //Program.Map.DisplayRoute(path, System.Drawing.Color.Red, 4);
         }
     }
 }

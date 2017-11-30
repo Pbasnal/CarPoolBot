@@ -17,7 +17,7 @@ namespace MessagingBusUnitTests
             message.msg = "message aaya";
             message2.msg = "Message 2 aaya";
 
-            var h1 = new MockMessageHandler();
+            var h1 = new MockMessageHandler(Guid.NewGuid(), Guid.NewGuid());
             //var h2 = new MockMessageHandler();
 
             MessageBus.Instance.Publish(message);
@@ -45,6 +45,10 @@ namespace MessagingBusUnitTests
     {
         public string Message;
 
+        public MockMessageHandler2(Guid operationId, Guid flowId) : base(operationId, flowId)
+        {
+        }
+
         public override void Handle(TextMessage2 message)
         {
             Message = message.msg;
@@ -54,6 +58,10 @@ namespace MessagingBusUnitTests
     internal class MockMessageHandler : MessageHandler<TextMessage>
     {
         public string Message;
+
+        public MockMessageHandler(Guid operationId, Guid flowId) : base(operationId, flowId)
+        {
+        }
 
         public override void Handle(TextMessage message)
         {

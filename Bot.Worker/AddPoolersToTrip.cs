@@ -9,7 +9,7 @@ namespace Bot.Worker
     {
         private EngineCoreSingleRequest _core;
 
-        public AddPoolersToTrip()
+        public AddPoolersToTrip(Guid operationId, Guid flowId) : base(operationId, flowId)
         {
             _core = new EngineCoreSingleRequest();
         }

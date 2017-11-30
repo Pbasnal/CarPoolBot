@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}</ProjectGuid>
+    <ProjectGuid>{C892213A-CF3D-4613-BDED-2E0CADD7A1A9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bot.MessagingFramework</RootNamespace>
-    <AssemblyName>Bot.MessagingFramework</AssemblyName>
+    <RootNamespace>Bot.Logger</RootNamespace>
+    <AssemblyName>Bot.Logger</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -40,21 +41,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Constants\EventCodes.cs" />
-    <Compile Include="IMessageHandler.cs" />
-    <Compile Include="MessageBase.cs" />
-    <Compile Include="MessageBus.cs" />
-    <Compile Include="MessageHandler.cs" />
+    <Compile Include="BotLogger.cs" />
+    <Compile Include="LogErrorMessages.cs" />
+    <Compile Include="LogObject.cs" />
+    <Compile Include="LogType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bot.Extensions\Bot.Extensions.csproj">
       <Project>{F40CAAB0-9F3A-4BCA-BB0A-B60E68E721CE}</Project>
       <Name>Bot.Extensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Bot.Logger\Bot.Logger.csproj">
-      <Project>{C892213A-CF3D-4613-BDED-2E0CADD7A1A9}</Project>
-      <Name>Bot.Logger</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,7 +1,7 @@
 ﻿using Bot.Data;
 using Bot.Data.Models;
-using Bot.External;
 using Bot.MessagingFramework;
+using Bot.External;
 using Bot.Models.Internal;
 using Bot.Worker.Messages;
 using Bot.Worker.Models;
@@ -34,7 +34,9 @@ namespace Bot.Worker.Core
 
             var process = _engineState.CommuterRequestProcessTable.FirstOrDefault(x => x.Key == message.TripOwnerRequest.Commuter.CommuterId);
 
-            AddPoolersRequestsToState(process.Value);
+            var response = AddPoolersRequestsToState(process.Value);
+
+            PublishRequestOwnerMessage(response.ResultData.TripOwnerRequest.TripRequest, response.ResponseCode);
 
             return new MethodResponse { IsSuccess = true };
         }
@@ -96,7 +98,7 @@ namespace Bot.Worker.Core
             });
         }
 
-        private MethodResponse AddPoolersRequestsToState(CommuterRequestProcessModel commuterRequestProcess)
+        private MethodResponse<CommuterRequestProcessModel> AddPoolersRequestsToState(CommuterRequestProcessModel commuterRequestProcess)
         {
             int numberOfPoolersNeeded = commuterRequestProcess.Trip.Owner.Vehicle.RemainingSeats
                 - commuterRequestProcess.PoolerRequests.Where(x => x.Status == TripRequestStatus.Waiting).Count();
@@ -122,7 +124,7 @@ namespace Bot.Worker.Core
                 }
             }
 
-            var methodResponse = new MethodResponse();
+            var methodResponse = new MethodResponse<CommuterRequestProcessModel>(commuterRequestProcess);
             if (numberOfPoolersNeeded == 0 || (numberOfPoolersNeeded > 0 && commuterRequestProcess.LastNodeReached))
             {
                 methodResponse.ResponseCode = ResponseCodes.SuccessDoNotRetry;
@@ -131,13 +133,13 @@ namespace Bot.Worker.Core
             {
                 methodResponse.ResponseCode = ResponseCodes.SuccessCanRetry;
             }
-            PublishRequestOwnerMessage(commuterRequestProcess.TripOwnerRequest.TripRequest, methodResponse.ResponseCode);
+            //PublishRequestOwnerMessage(commuterRequestProcess.TripOwnerRequest.TripRequest, methodResponse.ResponseCode);
 
             methodResponse.IsSuccess = true;
             return methodResponse;
         }
 
-        public MethodResponse AddPoolersToTrip(AddPoolersToTripMessage message)
+        public MethodResponse<CommuterRequestProcessModel> AddPoolersToTrip(AddPoolersToTripMessage message)
         {
             CommuterRequestProcessModel commuterRequestProcess = _engineState.CommuterRequestProcessTable[message.TripRequest.Commuter.CommuterId];
 
@@ -147,7 +149,7 @@ namespace Bot.Worker.Core
 
             SetRejectedPoolersStateToInitialized(commuterRequestProcess);
 
-            var methodResponse = new MethodResponse
+            var methodResponse = new MethodResponse<CommuterRequestProcessModel>
             {
                 IsSuccess = true,
                 ResponseCode = ResponseCodes.SuccessDoNotRetry

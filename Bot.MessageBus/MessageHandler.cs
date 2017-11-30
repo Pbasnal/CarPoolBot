@@ -16,7 +16,7 @@ namespace Bot.MessagingFramework
         private ManualResetEvent _mre;
         private bool _shouldWork = true;
 
-        public MessageHandler()
+        public MessageHandler(Guid operationId, Guid flowId)
         {
             MaxRetryCount = 3;
             RetryCount = 0;
@@ -24,7 +24,7 @@ namespace Bot.MessagingFramework
             _mre = new ManualResetEvent(false);
             _baton = new object();
 
-            MessageBus.Instance.RegisterHandler(this, typeof(T).FullName);
+            MessageBus.Instance.RegisterHandler(this, typeof(T).FullName, operationId, flowId);
 
             var runAsynchThread = new Thread(new ThreadStart(RunAsync));
             runAsynchThread.IsBackground = true;
@@ -87,6 +87,7 @@ namespace Bot.MessagingFramework
                     if (RetryCount == MaxRetryCount)
                     {
                         //log exception
+                        throw ex;
                     }
                 }
             }
