@@ -14,11 +14,10 @@ namespace Bot.Logger
         LogObject LogObject;
 
         public string Message;
-
-
+        
         public BotLogger(Guid operationId, Guid flowId, string eventCode, string payload)
         {
-            Log(operationId, flowId, eventCode, payload, payload.GetType().Name);
+            Log(operationId, flowId, eventCode, payload);
         }
 
         static BotLogger()
@@ -71,7 +70,7 @@ namespace Bot.Logger
             WriteToPermanentStore();
         }
 
-        private void Log(Guid operationId, Guid flowId, string eventCode, string payload, string payloadType)
+        private void Log(Guid operationId, Guid flowId, string eventCode, string payload)
         {
             if (AppId == Guid.Empty)
             {
@@ -104,7 +103,7 @@ namespace Bot.Logger
 
         private async void WriteToPermanentStore()
         {
-            using (StreamWriter outputFile = new StreamWriter(LogFilePath, true))
+            using (StreamWriter outputFile = new StreamWriter(LogFilePath + LogObject.OperationId.ToString() + ".txt", true))
             {
                 await outputFile.WriteLineAsync(LogObject.ToJsonString());
             }

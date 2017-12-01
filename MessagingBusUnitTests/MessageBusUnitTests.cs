@@ -13,11 +13,13 @@ namespace MessagingBusUnitTests
         {
             var message = new TextMessage();
             var message2 = new TextMessage();
+            message.OperationId = Guid.NewGuid();
+            message2.OperationId = message.OperationId;
 
             message.msg = "message aaya";
             message2.msg = "Message 2 aaya";
 
-            var h1 = new MockMessageHandler(Guid.NewGuid(), Guid.NewGuid());
+            var h1 = new MockMessageHandler(message.OperationId, message.MessageId);
             //var h2 = new MockMessageHandler();
 
             MessageBus.Instance.Publish(message);
@@ -34,6 +36,7 @@ namespace MessagingBusUnitTests
     public class TextMessage : MessageBase
     {
         public string msg;
+        
     }
 
     public class TextMessage2 : MessageBase

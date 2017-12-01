@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Bot.Extensions;
+using Bot.Logger;
+using Bot.MessagingFramework.Constants;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -15,6 +18,9 @@ namespace Bot.MessagingFramework
         private object _baton;
         private ManualResetEvent _mre;
         private bool _shouldWork = true;
+
+        Guid OperationIdForHandlerOperation = Guid.NewGuid();
+        Guid FlowIdForHandlerOperation = Guid.NewGuid();
 
         public MessageHandler(Guid operationId, Guid flowId)
         {
@@ -47,6 +53,8 @@ namespace Bot.MessagingFramework
 
         private void RunAsync()
         {
+            new BotLogger(OperationIdForHandlerOperation, FlowIdForHandlerOperation, EventCodes.StartedMessageHandlerJob, _messageQueue.ToJsonString())
+                    .Debug();
             while (_shouldWork)
             {
                 lock (_baton)
@@ -66,6 +74,8 @@ namespace Bot.MessagingFramework
                 lock (_baton)
                 {
                     message = _messageQueue.Dequeue();
+                    new BotLogger(message.OperationId, message.MessageId, EventCodes.HandlingMessageAsync, message.ToJsonString())
+                    .Debug();
                 }
                 HandleWithRetry(message);
             }
@@ -75,20 +85,28 @@ namespace Bot.MessagingFramework
         {
             while (RetryCount <= MaxRetryCount)
             {
-                RetryCount++;
-
                 try
                 {
+                    RetryCount++;
+                    new BotLogger(message.OperationId, message.MessageId, EventCodes.CallingHandlerWithRetries, message.ToJsonString())
+                    {
+                        Message = "Retries: " + RetryCount + "  MaxRetryCount: " + MaxRetryCount
+                    }.Debug();
+
                     Handle(message);
                     break;
                 }
                 catch (Exception ex)
                 {
-                    if (RetryCount == MaxRetryCount)
+                    if (RetryCount == MaxRetryCount + 1)
                     {
-                        //log exception
-                        throw ex;
+                        Tuple<T, Exception> payload = new Tuple<T, Exception>(message, ex);
+                        new BotLogger(message.OperationId, message.MessageId, EventCodes.ExceptionCameInHandler, payload.ToJsonString())
+                        {
+                            Message = "Retries: " + RetryCount + "  MaxRetryCount: " + MaxRetryCount
+                        }.Debug();
                     }
+                    
                 }
             }
             RetryCount = 0;
@@ -97,6 +115,8 @@ namespace Bot.MessagingFramework
         public void StopWorking()
         {
             _mre.Set();
+            new BotLogger(OperationIdForHandlerOperation, FlowIdForHandlerOperation, EventCodes.StopingMessageHandlerJob, _messageQueue.ToJsonString())
+                    .Debug();
             _shouldWork = false;
         }
 
@@ -104,8 +124,14 @@ namespace Bot.MessagingFramework
         {
             if (_shouldWork)
             {
+                new BotLogger(OperationIdForHandlerOperation, FlowIdForHandlerOperation, EventCodes.DidntStartMessageHandlerJob, _messageQueue.ToJsonString())
+                {
+                    Message = "_shouldWork" + _shouldWork.ToJsonString()
+                }.Debug();
                 return;
             }
+            new BotLogger(OperationIdForHandlerOperation, FlowIdForHandlerOperation, EventCodes.StartingMessageHandlerJob, _messageQueue.ToJsonString())
+                    .Debug();
             var runAsynchThread = new Thread(new ThreadStart(RunAsync));
             runAsynchThread.Start();
         }

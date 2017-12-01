@@ -4,8 +4,8 @@ namespace Bot.MessagingFramework
 {
     public class MessageBase
     {
-        Guid OperationId { get; set; }
-        Guid MessageId { get; set; }
+        public Guid OperationId { get; set; }
+        public Guid MessageId { get; set; }
 
         public MessageBase()
         {

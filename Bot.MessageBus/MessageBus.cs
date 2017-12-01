@@ -9,9 +9,7 @@ namespace Bot.MessagingFramework
     public class MessageBus
     {
         private IDictionary<string, IList<IMessageHandler>> messageHandlerTable;
-
-        private Queue<MessageBase> RetryQueue;
-
+        
         private static MessageBus _instance;
 
         public static MessageBus Instance
@@ -45,6 +43,9 @@ namespace Bot.MessagingFramework
 
         public void Publish(MessageBase message)
         {
+            new BotLogger(message.OperationId, message.MessageId, EventCodes.PublishingMessage, message.ToJsonString())
+            .Debug();
+
             var key = message.GetType().FullName;
 
             if (!messageHandlerTable.ContainsKey(key))
@@ -54,11 +55,6 @@ namespace Bot.MessagingFramework
             {
                 handler.EnqueueMessage(message);
             }
-        }
-
-        public void AddToRetryQueue(MessageBase message)
-        {
-
         }
     }
 }
