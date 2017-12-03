@@ -42,6 +42,11 @@
   <ItemGroup>
     <Compile Include="Actor.cs" />
     <Compile Include="AddPoolersToTrip.cs" />
+    <Compile Include="Core\AddPoolersToTripCore.cs" />
+    <Compile Include="Core\EndTheTripCore.cs" />
+    <Compile Include="Core\GetPoolersInTripCore.cs" />
+    <Compile Include="Core\GetTripRouteCore.cs" />
+    <Compile Include="Core\ProcessTripOwnerRequestCore.cs" />
     <Compile Include="HandlerInitializer.cs" />
     <Compile Include="Core\EngineCoreSingleRequest.cs" />
     <Compile Include="Core\EngineCoreStatus.cs" />
@@ -49,10 +54,11 @@
     <Compile Include="GetPoolersInTrip.cs" />
     <Compile Include="GetTripRoute.cs" />
     <Compile Include="Messages\AddPoolersToTripMessage.cs" />
+    <Compile Include="Messages\TripRequestFailedMessage.cs" />
     <Compile Include="Messages\EndTripMessage.cs" />
     <Compile Include="Messages\GetPoolersInTripMessage.cs" />
     <Compile Include="Messages\GetTripRouteMessage.cs" />
-    <Compile Include="Messages\PoolerAddToTripMessage.cs" />
+    <Compile Include="Messages\PoolerAddedToTripMessage.cs" />
     <Compile Include="Messages\ProcessTripOwnerRequestMessage.cs" />
     <Compile Include="Messages\ReqestOwnerToAcceptPoolersMessage.cs" />
     <Compile Include="Messages\TripDidNotStartedMessage.cs" />
@@ -69,9 +75,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bot.Common\Bot.Common.csproj">
+      <Project>{AF90C690-0422-410B-B935-0F257C89629A}</Project>
+      <Name>Bot.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bot.Data\Bot.Data.csproj">
       <Project>{BA7192EA-7899-412D-A408-D005CA0CB899}</Project>
       <Name>Bot.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bot.Extensions\Bot.Extensions.csproj">
+      <Project>{F40CAAB0-9F3A-4BCA-BB0A-B60E68E721CE}</Project>
+      <Name>Bot.Extensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bot.External\Bot.External.csproj">
       <Project>{5811a0bf-d14b-4ee5-881a-06d71b5332d8}</Project>

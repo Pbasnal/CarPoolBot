@@ -27,14 +27,14 @@ namespace Bot.Data.EfModels
             return new EfTrip(trip);
         }
 
-        public Trip GetTrip()
+        public Trip GetTrip(Guid operationId, Guid flowId)
         {
             return new Trip
             {
                 GoingTo = GoingTo,
-                Owner = Owner.GetCommuter(),
+                Owner = Owner.GetCommuter(operationId, flowId),
                 TripId = TripId,
-                Passengers = Passengers.Select(x => x.GetCommuter()).ToList()
+                Passengers = Passengers.Select(x => x.GetCommuter(operationId, flowId)).ToList()
             };
         }
 

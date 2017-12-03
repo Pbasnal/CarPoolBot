@@ -1,4 +1,6 @@
-﻿using Bot.MessagingFramework;
+﻿using Bot.Common;
+using Bot.Logger;
+using Bot.MessagingFramework;
 using Bot.Worker.Core;
 using Bot.Worker.Messages;
 using System;
@@ -7,22 +9,29 @@ namespace Bot.Worker
 {
     public class EndTheTrip : MessageHandler<EndTripMessage>
     {
-        private EngineCoreSingleRequest _core;
+        private EndTheTripCore _core;
 
-        public EndTheTrip(Guid operationId, Guid flowId) : base(operationId, flowId)
+        public EndTheTrip()
         {
-            _core = new EngineCoreSingleRequest();
+            _core = new EndTheTripCore();
         }
 
         public override void Handle(EndTripMessage message)
         {
             try
             {
+                new BotLogger<EndTripMessage>(message.OperationId, message.MessageId, EventCodes.HandleEndTripMessageBegin, message)
+                    .Debug();
+
                 _core.CompleteCommuterRequest(message.TripRequest);
+
+                new BotLogger<EndTripMessage>(message.OperationId, message.MessageId, EventCodes.HandleEndTripMessageEnd, message)
+                    .Debug();
             }
             catch (Exception ex)
             {
-                var str = ex.Message;
+                new BotLogger<EndTripMessage>(message.OperationId, message.MessageId, EventCodes.HandleEndTripMessageException, message, ex)
+                    .Exception();
                 throw;
             }
         }

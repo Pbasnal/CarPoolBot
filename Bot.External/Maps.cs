@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using GMap.NET;
 using GMap.NET.MapProviders;
 using Bot.Data.Models;
+using Bot.Logger;
+using Bot.Common;
+using System;
 //using Google.Maps;
 //using Google.Maps.Direction;
 
@@ -14,25 +17,40 @@ namespace Bot.External
         {
             if (commuterRequest.GoingTo == GoingTo.Office)
             {
-                return GetRoute(commuterRequest.Commuter.HomeCoordinate,
+                new BotLogger<TripRequest>(commuterRequest.OperationId, commuterRequest.FlowId, EventCodes.GetRouteToOffice, commuterRequest)
+                    .Debug();
+
+                return GetRoute(commuterRequest.OperationId, commuterRequest.FlowId, commuterRequest.Commuter.HomeCoordinate,
                     commuterRequest.Commuter.OfficeCoordinate);
             }
             else
             {
-                return GetRoute(commuterRequest.Commuter.OfficeCoordinate,
+                new BotLogger<TripRequest>(commuterRequest.OperationId, commuterRequest.FlowId, EventCodes.GetRouteToHome, commuterRequest)
+                    .Debug();
+
+                return GetRoute(commuterRequest.OperationId, commuterRequest.FlowId, commuterRequest.Commuter.OfficeCoordinate,
                     commuterRequest.Commuter.HomeCoordinate);
             }
         }
 
-        public IList<Coordinate> GetRoute(Coordinate pointA, Coordinate pointB)
+        public IList<Coordinate> GetRoute(Guid operationId, Guid flowId, Coordinate pointA, Coordinate pointB)
         {
+            Tuple<Coordinate, Coordinate> logObject = new Tuple<Coordinate, Coordinate>(pointA, pointB);
+            new BotLogger<Tuple<Coordinate, Coordinate>>(operationId, flowId, EventCodes.GetRouteBetweenCoordinates, logObject)
+                .Debug();
+
             PointLatLng p1 = new PointLatLng(pointA.Latitude, pointA.Longitude);
             PointLatLng p2 = new PointLatLng(pointB.Latitude, pointB.Longitude);
 
-            var route = GoogleMapProvider.Instance.GetRoutePoints(p1, p2, false, true, 12, "blah");
-
+            var route = GoogleMapProvider.Instance.GetRoutePoints(p1, p2, false, true, 12, string.Empty);
             if (route == null)
+            {
+                new BotLogger<MapRoute>(operationId, flowId, EventCodes.FaileToGetRouteBetweenPoints, route)
+                    .Error();
                 return new List<Coordinate>();
+            }
+            new BotLogger<MapRoute>(operationId, flowId, EventCodes.GotRouteBetweenPointsFromGoogle, route)
+                .Debug();
 
             var routeCoordinates = new List<Coordinate>();
             foreach (PointLatLng point in route.Points)
@@ -43,6 +61,9 @@ namespace Bot.External
                     Longitude = point.Lng
                 });
             }
+
+            new BotLogger<List<Coordinate>>(operationId, flowId, EventCodes.GotRouteBetweenPoints, routeCoordinates)
+                .Debug();
 
             return routeCoordinates;
         }

@@ -3,9 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Bot.Data.Models
 {
-    public class Commuter
+    public class Commuter : ModelBase
     {
-        [Key]
         public Guid CommuterId { get; set; }
         public string CommuterName { get; set; }
         public Coordinate OfficeCoordinate { get; set; }
@@ -14,7 +13,7 @@ namespace Bot.Data.Models
         public CommuterStatus Status { get; set; }
         public string MediaId { get; set; }
 
-        public Commuter()
+        public Commuter(Guid operationId, Guid flowId) : base(operationId, flowId)
         {
             HomeCoordinate = new Coordinate();
             OfficeCoordinate = new Coordinate();

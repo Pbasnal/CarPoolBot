@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Threading;
 
 namespace Bot.Logger
 {
-    public class BotLogger
+    public class BotLogger<T>
     {
         static IDictionary<Guid, IList<LogObject>> _flowLogs;
         static Guid AppId;
@@ -15,9 +16,14 @@ namespace Bot.Logger
 
         public string Message;
         
-        public BotLogger(Guid operationId, Guid flowId, string eventCode, string payload)
+        public BotLogger(Guid operationId, Guid flowId, string eventCode, T payload)
         {
-            Log(operationId, flowId, eventCode, payload);
+            Log(operationId, flowId, eventCode, payload.ToJsonString());
+        }
+
+        public BotLogger(Guid operationId, Guid flowId, string eventCode, T payload, Exception exception)
+        {
+            Log(operationId, flowId, eventCode, payload.ToJsonString(), exception);
         }
 
         static BotLogger()
@@ -88,6 +94,40 @@ namespace Bot.Logger
                 FlowId = flowId,
                 EventCode = eventCode,
                 Payload = payload,
+                ThreadId = Thread.CurrentThread.ManagedThreadId.ToString(),
+                LogTime = DateTime.UtcNow
+            };
+
+            if (!_flowLogs.ContainsKey(flowId))
+            {
+                _flowLogs.Add(flowId, new List<LogObject> { LogObject });
+            }
+            else
+            {
+                _flowLogs[flowId].Add(LogObject);
+            }
+        }
+
+        private void Log(Guid operationId, Guid flowId, string eventCode, string payload, Exception exception)
+        {
+            if (AppId == Guid.Empty)
+            {
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(LogFilePath))
+            {
+                throw new ArgumentException(LogErrorMessages.LogFilePathNotFound);
+            }
+
+            LogObject = new ExceptionLogObject
+            {
+                AppId = AppId,
+                OperationId = operationId,
+                FlowId = flowId,
+                EventCode = eventCode,
+                Payload = payload,
+                ThreadId = Thread.CurrentThread.ManagedThreadId.ToString(),
+                Exception = exception,
                 LogTime = DateTime.UtcNow
             };
 
@@ -105,7 +145,7 @@ namespace Bot.Logger
         {
             using (StreamWriter outputFile = new StreamWriter(LogFilePath + LogObject.OperationId.ToString() + ".txt", true))
             {
-                await outputFile.WriteLineAsync(LogObject.ToJsonString());
+                await outputFile.WriteLineAsync(LogObject.ToJsonString() + ","); // this will help while reading the file and converting it to json obect
             }
         }
     }

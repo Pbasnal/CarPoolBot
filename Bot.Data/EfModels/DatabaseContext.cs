@@ -1,5 +1,7 @@
-﻿using Bot.Data.DatastoreInterface;
+﻿using Bot.Common;
+using Bot.Data.DatastoreInterface;
 using Bot.Data.Models;
+using Bot.Logger;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -80,10 +82,13 @@ namespace Bot.Data.EfModels
             return result;
         }
 
-        public async Task<bool> AddCommutersAsync(IList<Commuter> commuters)
+        public async Task<bool> AddCommutersAsync(Guid operationId, Guid flowId, IList<Commuter> commuters)
         {
             if (commuters == null || commuters.Count == 0)
                 return false;
+
+            new BotLogger<IList<Commuter>>(operationId, flowId, EventCodes.AddingCommutersToEntityFrameworkSqlDb, commuters)
+                .Debug();
 
             var result = new TaskFactory().StartNew<bool>(() =>
             {
@@ -94,19 +99,32 @@ namespace Bot.Data.EfModels
                 }
                 catch (Exception ex)
                 {
-                    var s = ex.Message;
+                    new BotLogger<IList<Commuter>>(operationId, flowId,
+                        EventCodes.ExceptionWhileAddingCommutersToEntityFrameworkSqlDb,
+                        commuters, ex)
+                    .Exception();
                     return false;
                 }
                 return true;
             }).Result;
-
+            new BotLogger<IList<Commuter>>(operationId, flowId, EventCodes.CommutersAddedToEntityFrameworkSqlDb, commuters)
+                .Debug();
             return result;
         }
 
-        public async Task<bool> UpdateCommutersAsync(IList<Commuter> commuters)
+        public async Task<bool> UpdateCommutersAsync(Guid operationId, Guid flowId, IList<Commuter> commuters)
         {
             if (commuters == null || commuters.Count == 0)
+            {
+                new BotLogger<string>(operationId, flowId, EventCodes.InvalidArguments, string.Empty)
+                {
+                    Message = "List of commuters is " + (commuters == null ? "null" : "empty")
+                }.Error();
                 return false;
+            }
+
+            new BotLogger<IList<Commuter>>(operationId, flowId, EventCodes.UpdatingCommutersToEntityFrameworkSqlDb, commuters)
+                .Debug();
 
             var result = new TaskFactory().StartNew<bool>(() =>
             {
@@ -115,7 +133,14 @@ namespace Bot.Data.EfModels
                     var EfCommutersToUpdate = EfCommuters.Where(x => commuters.Any(y => x.CommuterId == y.CommuterId)).ToList();
 
                     if (EfCommutersToUpdate.Count != commuters.Count)
+                    {
+                        Tuple<IList<EfCommuter>, IList<Commuter>> commutersLogObject = new Tuple<IList<EfCommuter>, IList<Commuter>>(EfCommutersToUpdate, commuters);
+                        new BotLogger<Tuple<IList<EfCommuter>, IList<Commuter>>>(operationId, flowId, EventCodes.OneOrMoreCommuterDoesNotExist, commutersLogObject)
+                        {
+                            Message = "order of log object is EfCommuters : Commuters"
+                        }.Error();
                         return false;
+                    }
 
                     foreach (var efCommuter in EfCommutersToUpdate)
                     {
@@ -131,13 +156,16 @@ namespace Bot.Data.EfModels
                     }
 
                     SaveChanges();
+                    new BotLogger<IList<EfCommuter>>(operationId, flowId, EventCodes.CommutersUpdatedToEntityFrameworkSqlDb, EfCommutersToUpdate)
+                        .Debug();
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    var s = ex.Message;
+                    new BotLogger<IList<Commuter>>(operationId, flowId, EventCodes.ExceptionWhileUpdatingCommutersToEntityFrameworkSqlDb, commuters, ex)
+                        .Exception();
                     return false;
                 }
-                return true;
             }).Result;
 
             return result;
@@ -152,7 +180,7 @@ namespace Bot.Data.EfModels
             {
                 var eftrips = EfTrips.Where(x => tripIds.Contains(x.TripId)).ToList();
 
-                return eftrips.Select(x => x.GetTrip()).ToList();
+                return eftrips.Select(x => x.GetTrip(Guid.NewGuid(), Guid.NewGuid())).ToList();
             }).Result;
             return result;
         }
@@ -166,7 +194,7 @@ namespace Bot.Data.EfModels
             {
                 var eftrips = EfCommuters.Where(x => commuterIds.Contains(x.CommuterId)).ToList();
 
-                return eftrips.Select(x => x.GetCommuter()).ToList();
+                return eftrips.Select(x => x.GetCommuter(Guid.NewGuid(), Guid.NewGuid())).ToList();
             }).Result;
             return result;
         }
@@ -180,15 +208,24 @@ namespace Bot.Data.EfModels
             {
                 var eftrips = EfCommuters.Where(x => mediaIds.Contains(x.MediaId)).ToList();
 
-                return eftrips.Select(x => x.GetCommuter()).ToList();
+                return eftrips.Select(x => x.GetCommuter(Guid.NewGuid(), Guid.NewGuid())).ToList();
             }).Result;
             return result;
         }
 
-        public async Task<bool> AddTripRequestsAsync(List<TripRequest> tripRequests)
+        public async Task<bool> AddTripRequestsAsync(Guid operationId, Guid flowId, List<TripRequest> tripRequests)
         {
+            new BotLogger<List<TripRequest>>(operationId, flowId, EventCodes.AddingTripRequestToEntityFrameworkSqlDb, tripRequests)
+                .Debug();
+
             if (tripRequests == null || tripRequests.Count == 0)
+            {
+                new BotLogger<List<TripRequest>>(operationId, flowId, EventCodes.InvalidArguments, tripRequests)
+                {
+                    Message = "No trips provided"
+                }.Error();
                 return false;
+            }
 
             var result = new TaskFactory().StartNew<bool>(() =>
             {
@@ -196,10 +233,13 @@ namespace Bot.Data.EfModels
                 {
                     EfTripRequests.AddRange(tripRequests.Select(x => (EfTripRequest)x));
                     SaveChanges();
+                    new BotLogger<List<TripRequest>>(operationId, flowId, EventCodes.AddedTripRequestToEntityFrameworkSqlDb, tripRequests)
+                        .Debug();
                 }
                 catch (Exception ex)
                 {
-                    var s = ex.Message;
+                    new BotLogger<List<TripRequest>>(operationId, flowId, EventCodes.AddedTripRequestToEntityFrameworkSqlDb, tripRequests, ex)
+                        .Exception();
                     return false;
                 }
                 return true;
@@ -249,11 +289,11 @@ namespace Bot.Data.EfModels
         {
             var result = new TaskFactory().StartNew<List<TripRequest>>(() =>
             {
-                var eftripRequests = 
+                var eftripRequests =
                 EfTripRequests.Where(x => x.Status == RequestStatus.Initialized || x.Status == RequestStatus.Waiting)
                 .ToList();
 
-                return eftripRequests.Select(x => x.GetTripRequest()).ToList();
+                return eftripRequests.Select(x => x.GetTripRequest(Guid.NewGuid(), Guid.NewGuid())).ToList();
             }).Result;
             return result;
         }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Bot.Data.Models
 {
-    public class TripRequest
+    public class TripRequest : ModelBase
     {
         [Key]
         public Guid TripRequestId { get; set; }
@@ -14,7 +14,7 @@ namespace Bot.Data.Models
         public GoingHow GoingHow { get; set; }
         public RequestStatus Status { get; set; }
 
-        public TripRequest()
+        public TripRequest(Guid operationId, Guid flowId) : base(operationId, flowId)
         {
             TripRequestId = Guid.NewGuid();
         }

@@ -117,9 +117,7 @@
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Dialogs\OnboardingDialog.cs" />
     <Compile Include="Dialogs\RequestDialog.cs" />
-    <Compile Include="Dialogs\TripDialog.cs" />
     <Compile Include="Dialogs\WelcomeDialog.cs" />
-    <Compile Include="Dialogs\WorkerDialog.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -140,6 +138,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bot.Common\Bot.Common.csproj">
+      <Project>{AF90C690-0422-410B-B935-0F257C89629A}</Project>
+      <Name>Bot.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bot.Data\Bot.Data.csproj">
       <Project>{BA7192EA-7899-412D-A408-D005CA0CB899}</Project>
       <Name>Bot.Data</Name>
@@ -147,6 +149,10 @@
     <ProjectReference Include="..\Bot.External\Bot.External.csproj">
       <Project>{5811A0BF-D14B-4EE5-881A-06D71B5332D8}</Project>
       <Name>Bot.External</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bot.Logger\Bot.Logger.csproj">
+      <Project>{C892213A-CF3D-4613-BDED-2E0CADD7A1A9}</Project>
+      <Name>Bot.Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bot.MessageBus\Bot.MessagingFramework.csproj">
       <Project>{C90F4EC5-E6C8-4980-BD4C-285AE6DE8D50}</Project>

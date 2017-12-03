@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Connector;
 using System.Threading;
 using Bot.External;
+using Bot.Logger;
+using Bot.Common;
+using Bot.Models.Internal;
 
 namespace CorporatePoolBot.Dialogs
 {
@@ -13,9 +16,18 @@ namespace CorporatePoolBot.Dialogs
         private string _welcomeNote = "Hey!! :)";
         private UserAuthentication userAuthenticator;
 
+        private Guid OperationId { get; set; }
+        private Guid WelcomeFlowId { get; set; }
+
+        public WelcomeDialog(Guid operationId, Guid flowId)
+        {
+            OperationId = operationId;
+            WelcomeFlowId = Guid.NewGuid();
+        }
+
         public Task StartAsync(IDialogContext context)
         {
-            userAuthenticator = new UserAuthentication();
+            userAuthenticator = new UserAuthentication(OperationId, WelcomeFlowId);
             context.Wait(WelcomeCommuter);
             return Task.CompletedTask;
         }
@@ -25,21 +37,32 @@ namespace CorporatePoolBot.Dialogs
             try
             {
                 var activity = await result as Activity;
+                new BotLogger<Activity>(OperationId, WelcomeFlowId, EventCodes.WelcomeDialogInitiatedForUser, activity)
+                    .Debug();
+                
                 await context.PostAsync(_welcomeNote);
 
-                
                 var methodResponse = userAuthenticator.Authenticate(activity);
                 if (!methodResponse.IsSuccess)
                 {
-                    //check user progress
+                    new BotLogger<MethodResponse>(OperationId, WelcomeFlowId, EventCodes.UserNotYetOnboarded, methodResponse)
+                    .Debug();
+
                     await context.PostAsync(methodResponse.ResponseMessage);
                     await context.PostAsync("Starting onboarding process");
-                    await context.Forward(new OnboardingDialog(), WelcomeCommuter, activity, CancellationToken.None);
+                    await context.Forward(new OnboardingDialog(OperationId, WelcomeFlowId), WelcomeCommuter, activity, CancellationToken.None);
                 }
-                await context.Forward(new RequestDialog(), AfterProcessingUserRequest, activity, CancellationToken.None);
+
+                new BotLogger<MethodResponse>(OperationId, WelcomeFlowId, EventCodes.StartingUserRequest, methodResponse)
+                    .Debug();
+                //check user progress
+                await context.Forward(new RequestDialog(OperationId, WelcomeFlowId), AfterProcessingUserRequest, activity, CancellationToken.None);
             }
             catch (Exception ex)
             {
+                new BotLogger<object>(OperationId, WelcomeFlowId, EventCodes.ExceptionWhileWelcomingUser, result, ex)
+                    .Exception();
+
                 context.Fail(ex);
             }
         }
@@ -48,13 +71,16 @@ namespace CorporatePoolBot.Dialogs
         {
             try
             {
+                new BotLogger<object>(OperationId, WelcomeFlowId, EventCodes.UserRequestHasBeenProccessed, result)
+                    .Debug();
                 var msg = await result as string;
                 await context.PostAsync(msg);
                 context.Wait(WelcomeCommuter);
             }
             catch (Exception ex)
             {
-                var s = ex.Message;
+                new BotLogger<object>(OperationId, WelcomeFlowId, EventCodes.ExceptionAfterProcessingUserRequest, result, ex)
+                    .Exception();
                 context.Fail(ex);
             }
         }

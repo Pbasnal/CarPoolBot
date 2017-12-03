@@ -19,10 +19,6 @@ namespace Bot.Models.Internal
         {
             get
             {
-                if (_resultData == null)
-                {
-                    throw new ArgumentNullException();
-                }
                 return _resultData;
             }
             set
@@ -39,9 +35,6 @@ namespace Bot.Models.Internal
 
 
         public string ResultDataType { get; private set; }
-
-        //public MethodResponse()
-        //{ }
 
         public MethodResponse(T data)
         {
@@ -126,6 +119,5 @@ namespace Bot.Models.Internal
             ResponseCode = responseCode;
             ResponseMessage = responseMessage;
         }
-
     }
 }

@@ -115,9 +115,17 @@
     <Compile Include="UserAuthentication.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bot.Common\Bot.Common.csproj">
+      <Project>{AF90C690-0422-410B-B935-0F257C89629A}</Project>
+      <Name>Bot.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bot.Data\Bot.Data.csproj">
       <Project>{BA7192EA-7899-412D-A408-D005CA0CB899}</Project>
       <Name>Bot.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bot.Logger\Bot.Logger.csproj">
+      <Project>{C892213A-CF3D-4613-BDED-2E0CADD7A1A9}</Project>
+      <Name>Bot.Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bot.Models\Bot.Models.csproj">
       <Project>{11E1325C-C459-45C9-A5BF-BABD9D7FE201}</Project>

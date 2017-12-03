@@ -7,8 +7,10 @@ namespace Bot.MessagingFramework
         public Guid OperationId { get; set; }
         public Guid MessageId { get; set; }
 
-        public MessageBase()
+        public MessageBase(Guid operationId, Guid flowId)
         {
+            OperationId = operationId;
+            MessageId = flowId;
             MessageId = Guid.NewGuid();
         }
     }

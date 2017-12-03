@@ -1,7 +1,11 @@
-﻿using Bot.Data.DatastoreInterface;
+﻿using Bot.Common;
+using Bot.Data.DatastoreInterface;
 using Bot.Data.EfModels;
 using Bot.Data.Models;
+using Bot.Extensions;
+using Bot.Logger;
 using Bot.Models.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -39,6 +43,9 @@ namespace Bot.Data
 
         public MethodResponse AddTripRequest(TripRequest request)
         {
+            new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.AddTripRequestStarted, request)
+                .Debug();
+
             IDictionary<Coordinate, IList<TripRequest>> requestList;
             Coordinate origin;
 
@@ -47,39 +54,75 @@ namespace Bot.Data
             else if (request.GoingHow == GoingHow.Pool)
                 requestList = Poolers;
             else
+            {
+                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.InvalidArguments, request)
+                {
+                    Message = "GoingHow is not valid : " + request.GoingHow
+                }.Error();
                 return new MethodResponse(false, ResponseCodes.InvalidInputParameter);
+            }
 
             if (request.GoingTo == GoingTo.Office)
                 origin = PoolingMath.GetKeyPoint(request.Commuter.HomeCoordinate);
             else if (request.GoingTo == GoingTo.Home)
                 origin = PoolingMath.GetKeyPoint(request.Commuter.OfficeCoordinate);
             else
-                return new MethodResponse(false, ResponseCodes.InvalidInputParameter); ;
+            {
+                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.InvalidArguments, request)
+                {
+                    Message = "GoingTo is not valid : " + request.GoingTo
+                }.Error();
+                return new MethodResponse(false, ResponseCodes.InvalidInputParameter);
+            }
+
+            request.Status = RequestStatus.Initialized;
 
             if (!requestList.Keys.Contains(origin))
                 requestList.Add(origin, new List<TripRequest>());
-            request.Status = RequestStatus.Initialized;
 
-            var result = tripReuestsStore.AddTripRequestsAsync(new List<TripRequest> { request }).Result;
+            var result = tripReuestsStore.AddTripRequestsAsync(request.OperationId, request.FlowId, new List<TripRequest> { request }).Result;
             if (result)
             {
+                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.AddingTripRequestToState, request)
+                    .Debug();
                 requestList[origin].Add(request);
+                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.AddedRequestToState, request)
+                    .Debug();
                 return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
             }
-            return new MethodResponse(false, ResponseCodes.InternalProcessError);
+
+            new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.FailedToRequestToState, request)
+                .Error();
+            return new MethodResponse(false, ResponseCodes.InternalProcessErrorDoNotRetry);
         }
 
         public bool UpdateRequestStatus(TripRequest request, RequestStatus status)
         {
+            //todo: fix this mech
             while (IsUpdateInProcess) ;
+
+            new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.UpdatingRequestStatus, request)
+            {
+                Message = "Updating status to : " + status
+            }.Debug();
 
             IsUpdateInProcess = true;
             if (!UpdateRequestStatusThreadSafe(request, status))
             {
+                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.UpdateRequestStatusFailed, request)
+                {
+                    Message = "Updating status to : " + status
+                }.Error();
                 IsUpdateInProcess = false;
                 return false;
             }
             IsUpdateInProcess = false;
+
+            new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.UpdatedRequestStatus, request)
+            {
+                Message = "Updating status to : " + status
+            }.Debug();
+
             return true;
         }
 
@@ -93,33 +136,61 @@ namespace Bot.Data
             else if (request.GoingHow == GoingHow.Pool)
                 requestList = Poolers;
             else
+            {
+                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.RequestGoingHowIsInvalid, request)
+                {
+                    Message = "Updating status to : " + status
+                }.Error();
                 return false;
+            }
 
             if (request.GoingTo == GoingTo.Office)
                 origin = PoolingMath.GetKeyPoint(request.Commuter.HomeCoordinate);
             else if (request.GoingTo == GoingTo.Home)
                 origin = PoolingMath.GetKeyPoint(request.Commuter.OfficeCoordinate);
             else
+            {
+                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.RequestGoingToIsInvalid, request)
+                {
+                    Message = "Updating status to : " + status
+                }.Error();
                 return false;
+            }
 
             if (!requestList.Keys.Contains(origin))
+            {
+                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.RequestNodeDoesNotExistsInState, request)
+                {
+                    Message = "RequestList Keys : " + requestList.Keys.ToJsonString()
+                }.Error();
                 return false;
+            }
 
             request.Status = status;
             var tripRequestToUpdate = requestList[origin].
                 FirstOrDefault(r => r.Commuter.CommuterId == request.Commuter.CommuterId);
 
             if (tripRequestToUpdate == null)
+            {
+                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.RequestDoesNotExistsInState, request)
+                {
+                    Message = "RequestList : " + requestList[origin].ToJsonString()
+                }.Error();
                 return false;
+            }
 
             if (!tripReuestsStore.UpdateTripRequestAsync(new List<TripRequest> { request }).Result)
+            {
+                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.RequestDidNotUpdateInStore, tripRequestToUpdate)
+                    .Error();
                 return false;
+            }
 
             tripRequestToUpdate.Status = status;
             if (status == RequestStatus.InTrip)
             {
                 request.Commuter.Status = CommuterStatus.InTrip;
-                if (commutersStore.UpdateCommutersAsync(new List<Commuter> { request.Commuter }).Result)
+                if (commutersStore.UpdateCommutersAsync(Guid.NewGuid(), Guid.NewGuid(),new List<Commuter> { request.Commuter }).Result)
                 {
                     tripRequestToUpdate.Commuter.Status = CommuterStatus.InTrip;
                 }
@@ -127,11 +198,13 @@ namespace Bot.Data
             else
             {
                 request.Commuter.Status = CommuterStatus.InTrip;
-                if (commutersStore.UpdateCommutersAsync(new List<Commuter> { request.Commuter }).Result)
+                if (commutersStore.UpdateCommutersAsync(Guid.NewGuid(), Guid.NewGuid(), new List<Commuter> { request.Commuter }).Result)
                 {
                     tripRequestToUpdate.Commuter.Status = CommuterStatus.InProcess;
                 }
             }
+
+            new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.RequestStatusUpdated, tripRequestToUpdate).Error();
             return true;
         }
 

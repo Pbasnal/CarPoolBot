@@ -36,12 +36,12 @@ namespace Bot.Data.EfModels
             return new EfTripRequest(tripRequest);
         }
 
-        public TripRequest GetTripRequest()
+        public TripRequest GetTripRequest(Guid operationId, Guid flowId)
         {
-            return new TripRequest
+            return new TripRequest(operationId, flowId)
             {
                 TripRequestId = TripRequestId,
-                Commuter = Commuter.GetCommuter(),
+                Commuter = Commuter.GetCommuter(operationId, flowId),
                 GoingHow = GoingHow,
                 GoingTo = GoingTo,
                 RequestTime = RequestTime,

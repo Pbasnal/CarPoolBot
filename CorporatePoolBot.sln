@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.Logger", "Bot.Logger\Bo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.Extensions", "Bot.Extensions\Bot.Extensions.csproj", "{F40CAAB0-9F3A-4BCA-BB0A-B60E68E721CE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.Common", "Bot.Common\Bot.Common.csproj", "{AF90C690-0422-410B-B935-0F257C89629A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +92,10 @@ Global
 		{F40CAAB0-9F3A-4BCA-BB0A-B60E68E721CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F40CAAB0-9F3A-4BCA-BB0A-B60E68E721CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F40CAAB0-9F3A-4BCA-BB0A-B60E68E721CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF90C690-0422-410B-B935-0F257C89629A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF90C690-0422-410B-B935-0F257C89629A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF90C690-0422-410B-B935-0F257C89629A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF90C690-0422-410B-B935-0F257C89629A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

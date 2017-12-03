@@ -2,22 +2,17 @@
 using Bot.Models.Internal;
 using Bot.Worker.Messages;
 using System.Linq;
-using System;
 
 namespace EngineTestTool
 {
     public class RequestOwnerToAcceptPoolersHandler : MessageHandler<ReqestOwnerToAcceptPoolersMessage>
     {
-        public RequestOwnerToAcceptPoolersHandler(Guid operationId, Guid flowId) : base(operationId, flowId)
-        {
-        }
-
         public override void Handle(ReqestOwnerToAcceptPoolersMessage message)
         {
             var waitingPoolers = message.PoolersToRequestFor;
 
             var poolerIndices = Enumerable.Range(0, waitingPoolers.Count);
-            MessageBus.Instance.Publish(new AddPoolersToTripMessage
+            MessageBus.Instance.Publish(new AddPoolersToTripMessage(message.OperationId, message.MessageId)
             {
                 PoolerIndices = poolerIndices.ToArray(),
                 TripRequest = message.OwnerRequest,

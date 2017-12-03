@@ -1,4 +1,6 @@
-﻿using Bot.MessagingFramework;
+﻿using Bot.Common;
+using Bot.Logger;
+using Bot.MessagingFramework;
 using Bot.Worker.Core;
 using Bot.Worker.Messages;
 using System;
@@ -7,22 +9,29 @@ namespace Bot.Worker
 {
     public class AddPoolersToTrip : MessageHandler<AddPoolersToTripMessage>
     {
-        private EngineCoreSingleRequest _core;
+        private AddPoolersToTripCore _core;
 
-        public AddPoolersToTrip(Guid operationId, Guid flowId) : base(operationId, flowId)
+        public AddPoolersToTrip()
         {
-            _core = new EngineCoreSingleRequest();
+            _core = new AddPoolersToTripCore();
         }
 
         public override void Handle(AddPoolersToTripMessage message)
         {
             try
             {
+                new BotLogger<AddPoolersToTripMessage>(message.OperationId, message.MessageId, EventCodes.HandleAddPoolersToTripMessageBegin, message)
+                    .Debug();
+
                 _core.AddPoolersToTrip(message);
+
+                new BotLogger<AddPoolersToTripMessage>(message.OperationId, message.MessageId, EventCodes.HandleAddPoolersToTripMessageEnd, message)
+                    .Debug();
             }
             catch (Exception ex)
             {
-                var str = ex.Message;
+                new BotLogger<AddPoolersToTripMessage>(message.OperationId, message.MessageId, EventCodes.HandleAddPoolersToTripMessageException, message, ex)
+                    .Exception();
                 throw;
             }
         }

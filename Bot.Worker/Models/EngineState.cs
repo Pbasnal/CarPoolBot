@@ -1,5 +1,7 @@
-﻿using Bot.Data;
+﻿using Bot.Common;
+using Bot.Data;
 using Bot.Data.Models;
+using Bot.Logger;
 using Bot.Models.Internal;
 using System;
 using System.Collections.Generic;
@@ -56,6 +58,9 @@ namespace Bot.Worker.Models
             }
             catch (Exception ex)
             {
+                Tuple<TripRequest, IList<Coordinate>> logObject = new Tuple<TripRequest, IList<Coordinate>>(tripRequest, route);
+                new BotLogger<Tuple<TripRequest, IList<Coordinate>>>(tripRequest.OperationId, tripRequest.FlowId, EventCodes.ExceptionWhileaddingRequestToState, logObject, ex)
+                    .Exception();
                 return new MethodResponse(false, ResponseCodes.InvalidInputParameter, ex.Message);
             }
         }

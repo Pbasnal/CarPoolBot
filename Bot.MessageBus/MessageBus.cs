@@ -29,7 +29,7 @@ namespace Bot.MessagingFramework
 
         public void RegisterHandler(IMessageHandler handler, string messageType, Guid operationId, Guid flowId)
         {
-            new BotLogger(operationId, flowId, EventCodes.RegisteringNewHandler, handler.ToJsonString())
+            new BotLogger<IMessageHandler>(operationId, flowId, EventCodes.RegisteringNewHandler, handler)
             {
                 Message = messageType
             }.Debug();
@@ -43,7 +43,7 @@ namespace Bot.MessagingFramework
 
         public void Publish(MessageBase message)
         {
-            new BotLogger(message.OperationId, message.MessageId, EventCodes.PublishingMessage, message.ToJsonString())
+            new BotLogger<MessageBase>(message.OperationId, message.MessageId, EventCodes.PublishingMessage, message)
             .Debug();
 
             var key = message.GetType().FullName;

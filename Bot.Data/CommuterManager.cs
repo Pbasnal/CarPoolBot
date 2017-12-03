@@ -1,6 +1,8 @@
-﻿using Bot.Data.DatastoreInterface;
+﻿using Bot.Common;
+using Bot.Data.DatastoreInterface;
 using Bot.Data.EfModels;
 using Bot.Data.Models;
+using Bot.Logger;
 using Bot.Models.Internal;
 using System;
 using System.Collections.Generic;
@@ -41,7 +43,7 @@ namespace Bot.Data
 
             commuter.OfficeCoordinate = office;
 
-            var result = CommutersStore.AddCommutersAsync(new List<Commuter> { commuter }).Result;
+            var result = CommutersStore.AddCommutersAsync(commuter.OperationId, commuter.FlowId, new List<Commuter> { commuter }).Result;
 
             if (result)
             {
@@ -54,13 +56,23 @@ namespace Bot.Data
 
         public MethodResponse<Commuter> AddCommuter(Commuter commuter)
         {
-            var result = CommutersStore.AddCommutersAsync(new List<Commuter> { commuter }).Result;
+            new BotLogger<Commuter>(commuter.OperationId, commuter.FlowId, EventCodes.AddingCommuterToState, commuter)
+                .Debug();
+
+            var result = CommutersStore.AddCommutersAsync(commuter.OperationId, commuter.FlowId, new List<Commuter> { commuter }).Result;
 
             if (result)
             {
                 commuters.Add(commuter.CommuterId, commuter);
+
+                new BotLogger<Commuter>(commuter.OperationId, commuter.FlowId, EventCodes.CommuterAddedToState, commuter)
+                .Debug();
+
                 return new MethodResponse<Commuter>(commuter);
             }
+
+            new BotLogger<Commuter>(commuter.OperationId, commuter.FlowId, EventCodes.CommuterNotAddedToState, commuter)
+                .Error();
 
             return new MethodResponse<Commuter>(null);
         }
@@ -68,44 +80,80 @@ namespace Bot.Data
         public MethodResponse<Commuter> AddOfficeOfCommuter(Commuter inCommuter, Coordinate officeCoordinate)
         {
             Commuter commuter;
+
+            var methodParameterLogObject = new Tuple<Commuter, Coordinate>(inCommuter, officeCoordinate);
+            new BotLogger<Tuple<Commuter, Coordinate>>(inCommuter.OperationId, inCommuter.FlowId, EventCodes.AddOfficeOfCommuterToStateAndDb, methodParameterLogObject)
+                .Debug();
+
             if (!commuters.TryGetValue(inCommuter.CommuterId, out commuter))
+            {
+                new BotLogger<Commuter>(inCommuter.OperationId, inCommuter.FlowId, EventCodes.UserDoesNotExists, commuter)
+                .Error();
                 return new MethodResponse<Commuter>(false, ResponseCodes.InvalidInputParameter, ResponseMessages.CommuterDoesNotExists);
+            }
 
             //improve this
             var oldValue = commuter.OfficeCoordinate;
             commuter.OfficeCoordinate = officeCoordinate;
 
-            var result = CommutersStore.UpdateCommutersAsync(new List<Commuter> { commuter }).Result;
+            var result = CommutersStore.UpdateCommutersAsync(commuter.OperationId, commuter.FlowId, new List<Commuter> { commuter }).Result;
 
             if (result)
             {
+                new BotLogger<Commuter>(inCommuter.OperationId, inCommuter.FlowId, EventCodes.OfficeAddedToDb, commuter)
+                .Debug();
+
                 commuters.Add(commuter.CommuterId, commuter);
+
+                new BotLogger<Commuter>(inCommuter.OperationId, inCommuter.FlowId, EventCodes.OfficeAddedToState, commuter)
+                .Debug();
                 return new MethodResponse<Commuter>(commuter);
             }
+            
             //revertiung if db didn't get updated
+            new BotLogger<Tuple<Commuter, Coordinate>>(inCommuter.OperationId, inCommuter.FlowId, EventCodes.ErrorWhileAddingOfficeLocationToDbRevertingChanges, methodParameterLogObject)
+                .Error();
             commuter.OfficeCoordinate = oldValue;
+
             return new MethodResponse<Commuter>(null);
         }
 
         public MethodResponse<Commuter> AddHouseOfCommuter(Commuter inCommuter, Coordinate homeCoordinate)
         {
             Commuter commuter;
+
+            var methodParameterLogObject = new Tuple<Commuter, Coordinate>(inCommuter, homeCoordinate);
+            new BotLogger<Tuple<Commuter, Coordinate>>(inCommuter.OperationId, inCommuter.FlowId, EventCodes.AddHomeOfCommuterToStateAndDb, methodParameterLogObject)
+                .Debug();
+
             if (!commuters.TryGetValue(inCommuter.CommuterId, out commuter))
+            {
+                new BotLogger<Commuter>(inCommuter.OperationId, inCommuter.FlowId, EventCodes.UserDoesNotExists, commuter)
+                .Error();
                 return new MethodResponse<Commuter>(false, ResponseCodes.InvalidInputParameter, ResponseMessages.CommuterDoesNotExists);
-
-
+            }
             //improve this
-            var oldValue = commuter.OfficeCoordinate;
+            var oldValue = commuter.HomeCoordinate;
             commuter.HomeCoordinate = homeCoordinate;
 
-            var result = CommutersStore.UpdateCommutersAsync(new List<Commuter> { commuter }).Result;
+            var result = CommutersStore.UpdateCommutersAsync(commuter.OperationId, commuter.FlowId, new List<Commuter> { commuter }).Result;
 
             if (result)
             {
+                new BotLogger<Commuter>(inCommuter.OperationId, inCommuter.FlowId, EventCodes.HomeAddedToDb, commuter)
+                .Debug();
+
                 commuters.Add(commuter.CommuterId, commuter);
+
+                new BotLogger<Commuter>(inCommuter.OperationId, inCommuter.FlowId, EventCodes.HomeAddedToState, commuter)
+                .Debug();
+
                 return new MethodResponse<Commuter>(commuter);
             }
             //revertiung if db didn't get updated
+            new BotLogger<Tuple<Commuter, Coordinate>>(inCommuter.OperationId, inCommuter.FlowId, EventCodes.ErrorWhileAddingHomeLocationToDbRevertingChanges, methodParameterLogObject)
+                .Error();
+
             commuter.HomeCoordinate = oldValue;
             return new MethodResponse<Commuter>(null);
         }

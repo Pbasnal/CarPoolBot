@@ -31,9 +31,9 @@ namespace Bot.Data.EfModels
             return new EfCommuter(commuter);
         }
 
-        public Commuter GetCommuter()
+        public Commuter GetCommuter(Guid operationId, Guid flowId)
         {
-            return new Commuter
+            return new Commuter(operationId, flowId)
             {
                 CommuterId = CommuterId,
                 CommuterName = CommuterName,

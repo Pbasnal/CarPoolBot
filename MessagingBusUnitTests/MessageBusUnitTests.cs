@@ -11,15 +11,13 @@ namespace MessagingBusUnitTests
         [TestMethod]
         public void BasicTest()
         {
-            var message = new TextMessage();
-            var message2 = new TextMessage();
-            message.OperationId = Guid.NewGuid();
-            message2.OperationId = message.OperationId;
+            var message = new TextMessage(Guid.NewGuid(), Guid.NewGuid());
+            var message2 = new TextMessage(message.OperationId, message.MessageId);
 
             message.msg = "message aaya";
             message2.msg = "Message 2 aaya";
 
-            var h1 = new MockMessageHandler(message.OperationId, message.MessageId);
+            var h1 = new MockMessageHandler();
             //var h2 = new MockMessageHandler();
 
             MessageBus.Instance.Publish(message);
@@ -36,21 +34,24 @@ namespace MessagingBusUnitTests
     public class TextMessage : MessageBase
     {
         public string msg;
-        
+
+        public TextMessage(Guid operationId, Guid flowId) : base(operationId, flowId)
+        {
+        }
     }
 
     public class TextMessage2 : MessageBase
     {
         public string msg;
+
+        public TextMessage2(Guid operationId, Guid flowId) : base(operationId, flowId)
+        {
+        }
     }
 
     internal class MockMessageHandler2 : MessageHandler<TextMessage2>
     {
         public string Message;
-
-        public MockMessageHandler2(Guid operationId, Guid flowId) : base(operationId, flowId)
-        {
-        }
 
         public override void Handle(TextMessage2 message)
         {
@@ -61,11 +62,7 @@ namespace MessagingBusUnitTests
     internal class MockMessageHandler : MessageHandler<TextMessage>
     {
         public string Message;
-
-        public MockMessageHandler(Guid operationId, Guid flowId) : base(operationId, flowId)
-        {
-        }
-
+        
         public override void Handle(TextMessage message)
         {
             Message = message.msg;

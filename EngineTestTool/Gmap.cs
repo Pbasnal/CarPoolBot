@@ -19,6 +19,9 @@ namespace EngineTestTool
 {
     public partial class Gmap : Form
     {
+        Guid OperationId = Guid.NewGuid();
+        Guid FlowId = Guid.NewGuid();
+
         static int commuterId = 0;
 
         double MINX = 17.4118901285532;
@@ -170,7 +173,7 @@ namespace EngineTestTool
 
         private TripRequest GetRandomRequest(GoingHow how, GoingTo to)
         {
-            Commuter commuter = new Commuter
+            Commuter commuter = new Commuter(OperationId, FlowId)
             {
                 CommuterId = Guid.NewGuid(),
                 CommuterName = "TestCommuter" + commuterId++,
@@ -193,7 +196,7 @@ namespace EngineTestTool
                 }
             };
 
-            return new TripRequest
+            return new TripRequest(OperationId, FlowId)
             {
                 Commuter = commuter,
                 GoingHow = how,
@@ -298,7 +301,7 @@ namespace EngineTestTool
 
             foreach (var request in CommutersRequest)
             {
-                MessageBus.Instance.Publish(new ProcessTripOwnerRequestMessage
+                MessageBus.Instance.Publish(new ProcessTripOwnerRequestMessage(OperationId, FlowId)
                 {
                     TripOwnerRequest = request
                 });
