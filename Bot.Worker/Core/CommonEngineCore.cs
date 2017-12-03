@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Bot.Worker.Core
 {
-    internal class EngineCoreSingleRequest
+    internal class CommonEngineCore
     {
         static private EngineState _engineState = EngineState.Instance;
         

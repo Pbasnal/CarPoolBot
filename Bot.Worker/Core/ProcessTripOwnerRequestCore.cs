@@ -7,11 +7,8 @@ using Bot.MessagingFramework;
 using Bot.Models.Internal;
 using Bot.Worker.Messages;
 using Bot.Worker.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bot.Worker.Core
 {
@@ -44,7 +41,7 @@ namespace Bot.Worker.Core
 
             new BotLogger<ProcessTripOwnerRequestMessage>(message.OperationId, message.MessageId, EventCodes.AddingPoolersToState, message)
                 .Debug();
-            var response = EngineCoreSingleRequest.AddPoolersRequestsToState(process.Value);
+            var response = CommonEngineCore.AddPoolersRequestsToState(process.Value);
 
             if (!response.IsSuccess)
             {

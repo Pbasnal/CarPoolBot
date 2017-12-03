@@ -48,7 +48,7 @@
     <Compile Include="Core\GetTripRouteCore.cs" />
     <Compile Include="Core\ProcessTripOwnerRequestCore.cs" />
     <Compile Include="HandlerInitializer.cs" />
-    <Compile Include="Core\EngineCoreSingleRequest.cs" />
+    <Compile Include="Core\CommonEngineCore.cs" />
     <Compile Include="Core\EngineCoreStatus.cs" />
     <Compile Include="EndTheTrip.cs" />
     <Compile Include="GetPoolersInTrip.cs" />

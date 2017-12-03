@@ -9,8 +9,6 @@ using Bot.Worker.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bot.Worker.Core
 {
@@ -67,7 +65,7 @@ namespace Bot.Worker.Core
             {
                 new BotLogger<AddPoolersToTripMessage>(message.OperationId, message.MessageId, EventCodes.AddingMorePoolersToState, message)
                     .Debug();
-                methodResponse = EngineCoreSingleRequest.AddPoolersRequestsToState(commuterRequestProcess);
+                methodResponse = CommonEngineCore.AddPoolersRequestsToState(commuterRequestProcess);
             }
 
             if (methodResponse.ResponseCode == ResponseCodes.SuccessDoNotRetry)
