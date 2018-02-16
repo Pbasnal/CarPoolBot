@@ -23,7 +23,7 @@ namespace Bot.Worker
                 new BotLogger<GetPoolersInTripMessage>(message.OperationId, message.MessageId, EventCodes.HandleGetPoolersInTripMessageBegin, message)
                     .Debug();
 
-                message.Callback(_core.GetPoolersInTrip(message.TripRequest));
+                message.Callback(_core.GetPoolersInTrip(message));
 
                 new BotLogger<GetPoolersInTripMessage>(message.OperationId, message.MessageId, EventCodes.HandleGetPoolersInTripMessageEnd, message)
                     .Debug();

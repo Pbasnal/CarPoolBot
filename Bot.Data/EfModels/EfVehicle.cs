@@ -14,6 +14,11 @@ namespace Bot.Data.EfModels
         public int OccupiedSeats { get; set; }
         public string VehicleNumber { get; set; }
 
+        public EfVehicle()
+        {
+            
+        }
+
         public EfVehicle(Vehicle vehicle)
         {
             VehicleId = vehicle.VehicleId;
@@ -25,6 +30,8 @@ namespace Bot.Data.EfModels
 
         public static explicit operator EfVehicle(Vehicle vehicle)
         {
+            if (vehicle == null)
+                return null;
             return new EfVehicle(vehicle);
         }
 

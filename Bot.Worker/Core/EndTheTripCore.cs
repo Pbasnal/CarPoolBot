@@ -5,6 +5,7 @@ using Bot.Logger;
 using Bot.Models.Internal;
 using Bot.Worker.Models;
 using System;
+using Bot.Worker.Messages;
 
 namespace Bot.Worker.Core
 {
@@ -25,15 +26,16 @@ namespace Bot.Worker.Core
             }
         }
 
-        public MethodResponse CompleteCommuterRequest(TripRequest request)
+        public MethodResponse CompleteCommuterRequest(EndTripMessage message)
         {
-            new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.CompletingCommuterRequest, request)
+            var request = message.TripRequest;
+            new BotLogger<TripRequest>(request.OperationId, message.MessageId, EventCodes.CompletingCommuterRequest, request)
                 .Debug();
 
             var commuterId = request.Commuter.CommuterId;
             if (request.GoingHow == GoingHow.Drive)
             {
-                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.RemovingOwnerRequestFromState, request)
+                new BotLogger<TripRequest>(request.OperationId, message.MessageId, EventCodes.RemovingOwnerRequestFromState, request)
                     .Debug();
                 //todo: if the result is false, store request for later processing and inform customer
                 return _engineState.RemoveTripFromState(request.Commuter);
@@ -45,7 +47,7 @@ namespace Bot.Worker.Core
                 return new MethodResponse { IsSuccess = false };
             }
 
-            new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.RemovingPoolerRequestsFromState, request)
+            new BotLogger<TripRequest>(request.OperationId, message.MessageId, EventCodes.RemovingPoolerRequestsFromState, request)
                    .Debug();
             return _engineState.RemovePoolerRequestFromState(tripOwnerId, commuterId);
         }

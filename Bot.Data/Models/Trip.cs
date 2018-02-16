@@ -5,7 +5,7 @@ using Bot.Data.EfModels;
 
 namespace Bot.Data.Models
 {
-    public class Trip
+    public class Trip : ModelBase
     {
         [Key]
         public Guid TripId { get; set; }
@@ -14,9 +14,9 @@ namespace Bot.Data.Models
         public Commuter Owner { get; set; }
         public IList<Commuter> Passengers { get; set; }
 
-        public Trip()
+        public Trip(Guid operationId) : base(operationId)
         {
-            TripId = Guid.NewGuid();
+            TripId = operationId;
         }
 
         public Coordinate Origin

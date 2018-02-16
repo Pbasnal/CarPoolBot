@@ -8,7 +8,9 @@ using Bot.MessagingFramework;
 using Bot.Worker.Messages;
 using Bot.Logger;
 using Bot.Common;
+using Bot.Data.DataManagers;
 using Bot.Models.Internal;
+using Microsoft.Bot.Builder.ConnectorEx;
 
 namespace CorporatePoolBot.Dialogs
 {
@@ -151,9 +153,9 @@ namespace CorporatePoolBot.Dialogs
             new BotLogger<Activity>(OperationId, RequestFlowId, EventCodes.CreatingTripRequestForUser, activity)
                 .Debug();
 
-            TripRequest request = new TripRequest(OperationId, RequestFlowId)
+            TripRequest request = new TripRequest(OperationId)
             {
-                Commuter = CommuterManager.Instance.GetCommuter(new Guid(activity.From.Id)).ResultData,
+                Commuter = CommuterManager.Instance.GetCommuter(new Guid(activity.From.Id)),
                 GoingHow = GoingHow,
                 GoingTo = GoingTo,
                 RequestTime = DateTime.UtcNow,
@@ -165,7 +167,7 @@ namespace CorporatePoolBot.Dialogs
             new BotLogger<TripRequest>(OperationId, RequestFlowId, EventCodes.SendingTripRequestToRequestManager, request)
                 .Debug();
 
-            var methodResponse = TripRequestManager.Instance.AddTripRequest(request);
+            var methodResponse = TripRequestManager.Instance.AddTripRequest(RequestFlowId, request);
             Tuple<MethodResponse, TripRequest> logObject = new Tuple<MethodResponse, TripRequest>(methodResponse, request);
 
             if (!methodResponse.IsSuccess)
@@ -191,7 +193,6 @@ namespace CorporatePoolBot.Dialogs
             new BotLogger<Tuple<MethodResponse, TripRequest>>(OperationId, RequestFlowId, EventCodes.TripRequestCreated, logObject)
                 .Debug();
 
-            return;
         }
     }
 }

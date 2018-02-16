@@ -14,6 +14,11 @@ namespace Bot.Data.EfModels
         public EfVehicle Vehicle { get; set; }
         public CommuterStatus Status { get; set; }
         public string MediaId { get; set; }
+        public string ChannelId { get; set; }
+
+        public EfCommuter()
+        {
+        }
 
         public EfCommuter(Commuter commuter)
         {
@@ -24,6 +29,7 @@ namespace Bot.Data.EfModels
             Vehicle = (EfVehicle)commuter.Vehicle;
             Status = commuter.Status;
             MediaId = commuter.MediaId;
+            ChannelId = commuter.ChannelId;
         }
 
         public static explicit operator EfCommuter(Commuter commuter)
@@ -33,7 +39,7 @@ namespace Bot.Data.EfModels
 
         public Commuter GetCommuter(Guid operationId, Guid flowId)
         {
-            return new Commuter(operationId, flowId)
+            return new Commuter(operationId)
             {
                 CommuterId = CommuterId,
                 CommuterName = CommuterName,
@@ -41,7 +47,8 @@ namespace Bot.Data.EfModels
                 OfficeCoordinate = OfficeCoordinate.GetCoordinate(),
                 MediaId = MediaId,
                 Status = Status,
-                Vehicle = Vehicle.GetVehicle()
+                Vehicle = Vehicle.GetVehicle(),
+                ChannelId = ChannelId
             };
         }
     }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Bot.Data
+namespace Bot.Data.DataManagers
 {
     // needs to be thought upon
     public class RouteManager

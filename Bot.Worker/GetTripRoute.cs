@@ -23,7 +23,7 @@ namespace Bot.Worker
                 new BotLogger<GetTripRouteMessage>(message.OperationId, message.MessageId, EventCodes.HandleGetTripRouteMessageBegin, message)
                     .Debug();
 
-                message.Callback(_core.GetTripRoute(message.TripRequest));
+                message.Callback(_core.GetTripRoute(message));
 
                 new BotLogger<GetTripRouteMessage>(message.OperationId, message.MessageId, EventCodes.HandleGetTripRouteMessageEnd, message)
                     .Debug();

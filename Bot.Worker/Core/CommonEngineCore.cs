@@ -4,6 +4,8 @@ using Bot.Models.Internal;
 using Bot.Worker.Models;
 using System.Collections.Generic;
 using System.Linq;
+using Bot.Data.DataManagers;
+using System;
 
 namespace Bot.Worker.Core
 {
@@ -11,7 +13,7 @@ namespace Bot.Worker.Core
     {
         static private EngineState _engineState = EngineState.Instance;
         
-        static public MethodResponse<CommuterRequestProcessModel> AddPoolersRequestsToState(CommuterRequestProcessModel commuterRequestProcess)
+        static public MethodResponse<CommuterRequestProcessModel> AddPoolersRequestsToState(Guid flowId, CommuterRequestProcessModel commuterRequestProcess)
         {
             int numberOfPoolersNeeded = commuterRequestProcess.Trip.Owner.Vehicle.RemainingSeats
                 - commuterRequestProcess.PoolerRequests.Where(x => x.Status == TripRequestStatus.Waiting).Count();
@@ -29,7 +31,7 @@ namespace Bot.Worker.Core
                     commuterRequestProcess.PoolerRequests.Add(tripRequestInProcess);
                     _engineState.PoolerCommuterMapping.Add(poolRequest.Commuter.CommuterId,
                         commuterRequestProcess.Trip.Owner.CommuterId);
-                    TripRequestManager.Instance.UpdateRequestStatus(poolRequest, RequestStatus.Waiting);
+                    TripRequestManager.Instance.UpdateRequestStatus(flowId, poolRequest, RequestStatus.Waiting);
                     numberOfPoolersNeeded--;
 
                     if (numberOfPoolersNeeded <= 0)

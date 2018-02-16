@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace Bot.Data.Models
 {
@@ -12,8 +11,9 @@ namespace Bot.Data.Models
         public Vehicle Vehicle { get; set; }
         public CommuterStatus Status { get; set; }
         public string MediaId { get; set; }
+        public string ChannelId { get; set; }
 
-        public Commuter(Guid operationId, Guid flowId) : base(operationId, flowId)
+        public Commuter(Guid operationId) : base(operationId)
         {
             HomeCoordinate = new Coordinate();
             OfficeCoordinate = new Coordinate();

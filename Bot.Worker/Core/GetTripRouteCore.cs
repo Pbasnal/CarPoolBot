@@ -1,6 +1,7 @@
 ﻿using Bot.Common;
 using Bot.Data.Models;
 using Bot.Logger;
+using Bot.Worker.Messages;
 using Bot.Worker.Models;
 
 namespace Bot.Worker.Core
@@ -22,12 +23,12 @@ namespace Bot.Worker.Core
             }
         }
 
-        public Route GetTripRoute(TripRequest request)
+        public Route GetTripRoute(GetTripRouteMessage message)
         {
             CommuterRequestProcessModel processModel;
-            if (_engineState.CommuterRequestProcessTable.TryGetValue(request.Commuter.CommuterId, out processModel))
+            if (_engineState.CommuterRequestProcessTable.TryGetValue(message.TripRequest.Commuter.CommuterId, out processModel))
             {
-                new BotLogger<CommuterRequestProcessModel>(request.OperationId, request.FlowId, EventCodes.GotProcessModelForTripRoute, processModel)
+                new BotLogger<CommuterRequestProcessModel>(message.TripRequest.OperationId, message.MessageId, EventCodes.GotProcessModelForTripRoute, processModel)
                     .Debug();
                 return processModel.CompleteRoute;
             }

@@ -17,7 +17,6 @@ namespace Bot.Data.EfModels
 
         public EfTripRequest()
         {
-            TripRequestId = Guid.NewGuid();
         }
 
         public EfTripRequest(TripRequest tripRequest)
@@ -38,7 +37,7 @@ namespace Bot.Data.EfModels
 
         public TripRequest GetTripRequest(Guid operationId, Guid flowId)
         {
-            return new TripRequest(operationId, flowId)
+            return new TripRequest(operationId)
             {
                 TripRequestId = TripRequestId,
                 Commuter = Commuter.GetCommuter(operationId, flowId),

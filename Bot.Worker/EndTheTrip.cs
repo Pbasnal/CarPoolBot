@@ -23,7 +23,7 @@ namespace Bot.Worker
                 new BotLogger<EndTripMessage>(message.OperationId, message.MessageId, EventCodes.HandleEndTripMessageBegin, message)
                     .Debug();
 
-                _core.CompleteCommuterRequest(message.TripRequest);
+                _core.CompleteCommuterRequest(message);
 
                 new BotLogger<EndTripMessage>(message.OperationId, message.MessageId, EventCodes.HandleEndTripMessageEnd, message)
                     .Debug();

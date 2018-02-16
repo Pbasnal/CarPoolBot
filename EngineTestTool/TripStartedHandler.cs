@@ -11,7 +11,7 @@ namespace EngineTestTool
         {
             Program.Map.AddCommuterAndPassengersToList(message);
             Program.Map.UpdateState(TotalProcessed++);
-            //Program.Map.DisplayTrip(message);
+            Program.Map.DisplayTrip(message);
         }
     }
 }

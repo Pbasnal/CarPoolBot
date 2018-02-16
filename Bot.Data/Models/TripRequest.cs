@@ -14,7 +14,7 @@ namespace Bot.Data.Models
         public GoingHow GoingHow { get; set; }
         public RequestStatus Status { get; set; }
 
-        public TripRequest(Guid operationId, Guid flowId) : base(operationId, flowId)
+        public TripRequest(Guid operationId) : base(operationId)
         {
             TripRequestId = Guid.NewGuid();
         }

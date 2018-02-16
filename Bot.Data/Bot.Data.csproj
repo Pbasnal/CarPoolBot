@@ -51,9 +51,14 @@
   <ItemGroup>
     <Compile Include="CommuterStatus.cs" />
     <Compile Include="Coordinate.cs" />
+    <Compile Include="DataManagers\BotChannelConfigManager.cs" />
     <Compile Include="DatastoreInterface\IStoreCommuters.cs" />
     <Compile Include="DatastoreInterface\IStoreTripRequests.cs" />
     <Compile Include="DatastoreInterface\IStoreTrips.cs" />
+    <Compile Include="EfDatastores\StoreCommuters.cs" />
+    <Compile Include="EfDatastores\StoreTripRequests.cs" />
+    <Compile Include="EfDatastores\StoreTrips.cs" />
+    <Compile Include="EfModels\EfBotChannelConfig.cs" />
     <Compile Include="EfModels\EfCommuter.cs" />
     <Compile Include="EfModels\DatabaseContext.cs" />
     <Compile Include="EfModels\EfCoordinate.cs" />
@@ -62,18 +67,21 @@
     <Compile Include="EfModels\EfVehicle.cs" />
     <Compile Include="GoingHow.cs" />
     <Compile Include="GoingTo.cs" />
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\BotChannelConfig.cs" />
+    <Compile Include="Models\CommuterConversationReference.cs" />
     <Compile Include="Models\ModelBase.cs" />
     <Compile Include="PoolingMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestStatus.cs" />
     <Compile Include="Route.cs" />
-    <Compile Include="RouteManager.cs" />
+    <Compile Include="DataManagers\RouteManager.cs" />
     <Compile Include="Models\Trip.cs" />
     <Compile Include="Models\Commuter.cs" />
     <Compile Include="Models\TripRequest.cs" />
-    <Compile Include="TripRequestManager.cs" />
-    <Compile Include="TripManager.cs" />
-    <Compile Include="CommuterManager.cs" />
+    <Compile Include="DataManagers\TripRequestManager.cs" />
+    <Compile Include="DataManagers\TripManager.cs" />
+    <Compile Include="DataManagers\CommuterManager.cs" />
     <Compile Include="Models\Vehicle.cs" />
   </ItemGroup>
   <ItemGroup>

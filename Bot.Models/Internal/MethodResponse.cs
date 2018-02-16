@@ -47,8 +47,7 @@ namespace Bot.Models.Internal
             {
                 IsSuccess = false;
                 ResponseCode = ResponseCodes.InvalidResponseObject;
-                ResponseMessage = ResponseMessages.InvalidResponseObject + " "
-                    + data.GetType().Name + " in "
+                ResponseMessage = ResponseMessages.InvalidResponseObject + " \"null\" "+ " in "
                     + stackTrace.GetFrame(1).GetMethod().Name;
                 ResultData = default(T);
             }

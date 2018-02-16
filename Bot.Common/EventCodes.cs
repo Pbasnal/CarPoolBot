@@ -2,6 +2,7 @@
 {
     public class EventCodes
     {
+        public const string AddingTripSqlDb = "AddingTripSqlDb";
         public const string WrongUserMessage = "WrongUserMessage";
         public const string UserDoesNotExists = "UserDoesNotExists";
         public const string InvalidArguments = "InvalidArguments";
@@ -64,6 +65,7 @@
         public const string ExceptionWhileUpdatingCommutersToEntityFrameworkSqlDb = "ExceptionWhileUpdatingCommutersToEntityFrameworkSqlDb";
         public const string AddingTripRequestToEntityFrameworkSqlDb = "AddingTripRequestToEntityFrameworkSqlDb";
         public const string AddedTripRequestToEntityFrameworkSqlDb = "AddedTripRequestToEntityFrameworkSqlDb";
+        public const string ExceptionWhileAddingTripToEntityFrameworkSqlDb = "ExceptionWhileAddingTripToEntityFrameworkSqlDb";
 
         //Bot.Request
         public const string UserResponseForWhereDoYouWantToGo = "UserResponseForWhereDoYouWantToGo";
@@ -84,7 +86,7 @@
         public const string AddTripRequestStarted = "AddTripRequestStarted";
         public const string AddingTripRequestToState = "AddingTripRequestToState";
         public const string AddedRequestToState = "AddedRequestToState";
-        public const string FailedToRequestToState = "FailedToRequestToState";
+        public const string FailedToAddTripRequestToState = "FailedToAddTripRequestToState";
         public const string PublishingOwnerRequestMessage = "PublishingOwnerRequestMessage";
 
         //Bot.Worker ProcessTripOwnerRequest
@@ -163,5 +165,9 @@
         public const string UpdatedRequestStatus = "UpdatedRequestStatus";
         public const string AddingPoolersToTripAndUpdatePoolerStatus = "AddingPoolersToTripAndUpdatePoolerStatus";
         public const string UpdatingRequestStatusFailed = "UpdatingRequestStatusFailed";
+
+        public const string VehicleOwnerAddedtoStateBegin = "VehicleOwnerAddedtoStateBegin";
+        public const string VehicleOwnerIsNotInState = "VehicleOwnerIsNotInState";
+        public const string BotChannelConfigNotFound = "BotChannelConfigNotFound";
     }
 }

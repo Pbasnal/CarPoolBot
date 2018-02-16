@@ -35,7 +35,7 @@ namespace Bot.Worker.Models
 
         public CommuterRequestProcessModel(TripRequest tripRequest, IList<Coordinate> inputRoute)
         {
-            Trip = new Trip
+            Trip = new Trip(tripRequest.TripRequestId)
             {
                 GoingTo = tripRequest.GoingTo,
                 Owner = tripRequest.Commuter,

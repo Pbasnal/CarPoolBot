@@ -14,6 +14,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Bot.Data.DataManagers;
 
 namespace EngineTestTool
 {
@@ -33,7 +34,7 @@ namespace EngineTestTool
         int CountIncrement = 500;
         
         int MAX_COMMUTER_COUNT = 10;
-        int MAX_POOLER_COUNT = 200;
+        int MAX_POOLER_COUNT = 100;
 
         Random random = new Random();
         IDictionary<Coordinate, IList<Commuter>> CommuterDataSet;
@@ -92,8 +93,8 @@ namespace EngineTestTool
             // generating random people who will pool
             for (int i = 0; i < MAX_POOLER_COUNT; i++)
             {
-                var request = GetRandomRequest(GoingHow.Pool, GoingTo.Office);
-                TripRequestManager.Instance.AddTripRequest(request);
+                var request = GetRandomRequest(GoingHow.Pool, GoingTo.Office, false);
+                TripRequestManager.Instance.AddTripRequest(FlowId, request);
 
                 var keyPoint = GetKeyPoint(request.Commuter.HomeCoordinate);
 
@@ -106,15 +107,15 @@ namespace EngineTestTool
             // generating random people who will drive
             for (int i = 0; i < MAX_COMMUTER_COUNT; i++)
             {
-                var request = GetRandomRequest(GoingHow.Drive, GoingTo.Office);
-                var route = maps.GetRoute(request);
+                var request = GetRandomRequest(GoingHow.Drive, GoingTo.Office, true);
+                var route = maps.GetRoute(FlowId, request);
                 if (route == null || route.Count == 0)
                 {
                     i--;
                     continue;
                 }
 
-                TripRequestManager.Instance.AddTripRequest(request);
+                TripRequestManager.Instance.AddTripRequest(FlowId, request);
                 CommutersRequest.Add(request);
 
                 var keyPoint = GetKeyPoint(request.Commuter.HomeCoordinate);
@@ -171,9 +172,9 @@ namespace EngineTestTool
             }
         }
 
-        private TripRequest GetRandomRequest(GoingHow how, GoingTo to)
+        private TripRequest GetRandomRequest(GoingHow how, GoingTo to, bool hasVehicle)
         {
-            Commuter commuter = new Commuter(OperationId, FlowId)
+            Commuter commuter = new Commuter(OperationId)
             {
                 CommuterId = Guid.NewGuid(),
                 CommuterName = "TestCommuter" + commuterId++,
@@ -187,16 +188,16 @@ namespace EngineTestTool
                     Latitude = RandomDoubleBetween(MINX, MAXX),
                     Longitude = RandomDoubleBetween(MINY, MAXY)
                 },
-                Vehicle = new Vehicle
+                Vehicle = hasVehicle ? new Vehicle
                 {
                     MaxPassengerCount = 4,
                     OccupiedSeats = 0,
                     VehicleNumber = Guid.NewGuid().ToString(),
                     VehicleOnboarded = true
-                }
+                } : null
             };
 
-            return new TripRequest(OperationId, FlowId)
+            return new TripRequest(OperationId)
             {
                 Commuter = commuter,
                 GoingHow = how,

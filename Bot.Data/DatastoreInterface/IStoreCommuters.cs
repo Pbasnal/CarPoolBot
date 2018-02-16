@@ -1,7 +1,7 @@
-﻿using Bot.Data.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Bot.Data.Models;
 
 namespace Bot.Data.DatastoreInterface
 {

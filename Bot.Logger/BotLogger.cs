@@ -3,19 +3,21 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bot.Logger
 {
     public class BotLogger<T>
     {
-        static IDictionary<Guid, IList<LogObject>> _flowLogs;
+        static readonly IDictionary<Guid, IList<LogObject>> _flowLogs;
         static Guid AppId;
         static string LogFilePath;
         LogObject LogObject;
-
-        public string Message;
         
+        public string Message;
+
         public BotLogger(Guid operationId, Guid flowId, string eventCode, T payload)
         {
             Log(operationId, flowId, eventCode, payload.ToJsonString());
@@ -45,7 +47,6 @@ namespace Bot.Logger
             {
                 throw new ArgumentException(LogErrorMessages.LogFilePathNotFound);
             }
-            
         }
 
         public void Debug()
@@ -143,10 +144,30 @@ namespace Bot.Logger
 
         private async void WriteToPermanentStore()
         {
-            using (StreamWriter outputFile = new StreamWriter(LogFilePath + LogObject.OperationId.ToString() + ".txt", true))
+            await WriteToLogDb();
+        }
+
+        private Task WriteToLogDb()
+        {
+
+            var str = ConfigurationManager.ConnectionStrings;
+            var dbTask = new TaskFactory().StartNew(() =>
             {
-                await outputFile.WriteLineAsync(LogObject.ToJsonString() + ","); // this will help while reading the file and converting it to json obect
-            }
+                using (var ctx = new LogDatabaseContext())
+                {
+                    if (LogObject.LogType == LogType.Exception)
+                    {
+                        ctx.ExceptionLogs.Add((ExceptionLogObject)LogObject);
+                    }
+                    else
+                    {
+                        ctx.Logs.Add(LogObject);
+                    }
+                    ctx.SaveChanges();
+                }
+            });
+
+            return dbTask;
         }
     }
 }

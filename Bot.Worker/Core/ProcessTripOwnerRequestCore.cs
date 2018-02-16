@@ -1,4 +1,5 @@
-﻿using Bot.Common;
+﻿using System;
+using Bot.Common;
 using Bot.Data;
 using Bot.Data.Models;
 using Bot.External;
@@ -9,6 +10,7 @@ using Bot.Worker.Messages;
 using Bot.Worker.Models;
 using System.Collections.Generic;
 using System.Linq;
+using Bot.Data.DataManagers;
 
 namespace Bot.Worker.Core
 {
@@ -19,18 +21,12 @@ namespace Bot.Worker.Core
         {
             _engineState = EngineState.Instance;
         }
-        public EngineState EngineState
-        {
-            get
-            {
-                return _engineState?.Clone();
-            }
-        }
+        public EngineState EngineState => _engineState?.Clone();
 
         // todo:should return the data for which poolingengine could send requests messages to the customers.
         public MethodResponse ProcessRequests(ProcessTripOwnerRequestMessage message)
         {
-            var methodResponse = AddCommuterRequestsToState(message.TripOwnerRequest);
+            var methodResponse = AddCommuterRequestsToState(message);
             if (!methodResponse.IsSuccess)
             {
                 new BotLogger<ProcessTripOwnerRequestMessage>(message.OperationId, message.MessageId, EventCodes.UnableToAddCommuterRequestToState, message)
@@ -41,7 +37,7 @@ namespace Bot.Worker.Core
 
             new BotLogger<ProcessTripOwnerRequestMessage>(message.OperationId, message.MessageId, EventCodes.AddingPoolersToState, message)
                 .Debug();
-            var response = CommonEngineCore.AddPoolersRequestsToState(process.Value);
+            var response = CommonEngineCore.AddPoolersRequestsToState(message.MessageId, process.Value);
 
             if (!response.IsSuccess)
             {
@@ -49,56 +45,57 @@ namespace Bot.Worker.Core
                     .Error();
             }
 
-            PublishRequestOwnerMessage(response.ResultData.TripOwnerRequest.TripRequest, response.ResponseCode);
+            PublishRequestOwnerMessage(message.MessageId, response.ResultData.TripOwnerRequest.TripRequest, response.ResponseCode);
 
             return new MethodResponse { IsSuccess = true };
         }
 
-        private MethodResponse AddCommuterRequestsToState(TripRequest tripOwnerRequest)
+        private MethodResponse AddCommuterRequestsToState(ProcessTripOwnerRequestMessage message)
         {
             var maps = new Maps();
-            IList<Coordinate> route = maps.GetRoute(tripOwnerRequest);
+            var tripOwnerRequest = message.TripOwnerRequest;
+            IList<Coordinate> route = maps.GetRoute(message.MessageId, tripOwnerRequest);
 
             if (route == null || route.Count == 0)
             {
-                new BotLogger<TripRequest>(tripOwnerRequest.OperationId, tripOwnerRequest.FlowId, EventCodes.UnableToGetRouteForTheTrip, tripOwnerRequest)
+                new BotLogger<TripRequest>(tripOwnerRequest.OperationId, message.MessageId, EventCodes.UnableToGetRouteForTheTrip, tripOwnerRequest)
                     .Error();
                 return new MethodResponse(false, ResponseCodes.InternalProcessErrorRetry, ResponseMessages.RouteNotFound);
             }
-            new BotLogger<IList<Coordinate>>(tripOwnerRequest.OperationId, tripOwnerRequest.FlowId, EventCodes.GotRouteForTheRequest, route)
+            new BotLogger<IList<Coordinate>>(tripOwnerRequest.OperationId, message.MessageId, EventCodes.GotRouteForTheRequest, route)
                 .Debug();
 
-            if (!TripRequestManager.Instance.UpdateRequestStatus(tripOwnerRequest, RequestStatus.InProcess))
+            if (!TripRequestManager.Instance.UpdateRequestStatus(message.MessageId, tripOwnerRequest, RequestStatus.InProcess))
             {
-                new BotLogger<TripRequest>(tripOwnerRequest.OperationId, tripOwnerRequest.FlowId, EventCodes.UnableToUpdateRequestStatus, tripOwnerRequest)
+                new BotLogger<TripRequest>(tripOwnerRequest.OperationId, message.MessageId, EventCodes.UnableToUpdateRequestStatus, tripOwnerRequest)
                     .Error();
                 return new MethodResponse(false, ResponseCodes.InternalProcessErrorRetry, ResponseMessages.FailedToUpdateState);
             }
             if (!_engineState.AddCommuterToState(tripOwnerRequest, route).IsSuccess)
             {
-                new BotLogger<TripRequest>(tripOwnerRequest.OperationId, tripOwnerRequest.FlowId, EventCodes.UnableToAddCommuterToState, tripOwnerRequest)
+                new BotLogger<TripRequest>(tripOwnerRequest.OperationId, message.MessageId, EventCodes.UnableToAddCommuterToState, tripOwnerRequest)
                     .Error();
                 return new MethodResponse(false, ResponseCodes.InternalProcessErrorRetry, ResponseMessages.FailedToAddToState);
             }
 
-            MessageBus.Instance.Publish(new VehicleOwnerAddedToStateMessage(tripOwnerRequest.OperationId, tripOwnerRequest.FlowId)
+            MessageBus.Instance.Publish(new VehicleOwnerAddedToStateMessage(tripOwnerRequest.OperationId, message.MessageId)
             {
                 Route = new Data.Route(route.ToList()),
                 TripRequest = tripOwnerRequest
             });
 
-            new BotLogger<TripRequest>(tripOwnerRequest.OperationId, tripOwnerRequest.FlowId, EventCodes.AddedCommuterToState, tripOwnerRequest)
+            new BotLogger<TripRequest>(tripOwnerRequest.OperationId, message.MessageId, EventCodes.AddedCommuterToState, tripOwnerRequest)
                 .Debug();
 
             return new MethodResponse(true, ResponseCodes.SuccessDoNotRetry);
         }
 
-        private void PublishRequestOwnerMessage(TripRequest request, int status)
+        private void PublishRequestOwnerMessage(Guid flowId, TripRequest request, int status)
         {
             CommuterRequestProcessModel commuterRequestProcess;
             if (!_engineState.CommuterRequestProcessTable.TryGetValue(request.Commuter.CommuterId, out commuterRequestProcess))
             {
-                new BotLogger<TripRequest>(request.OperationId, request.FlowId, EventCodes.ProcessModelDoesNotExists, request)
+                new BotLogger<TripRequest>(request.OperationId, flowId, EventCodes.ProcessModelDoesNotExists, request)
                     .Error();
                 return;
             }
@@ -111,7 +108,7 @@ namespace Bot.Worker.Core
 
             var poolersToRequest = waitingPoolers.GetRange(0, numberOfPoolersToRequest);
 
-            new BotLogger<CommuterRequestProcessModel>(request.OperationId, request.FlowId, EventCodes.GotPoolersToRequest, commuterRequestProcess)
+            new BotLogger<CommuterRequestProcessModel>(request.OperationId, flowId, EventCodes.GotPoolersToRequest, commuterRequestProcess)
                     .Debug();
 
             foreach (var poolRequest in poolersToRequest)
@@ -120,22 +117,22 @@ namespace Bot.Worker.Core
                     .First(x => x.TripRequest.Commuter.CommuterId == poolRequest.TripRequest.Commuter.CommuterId);
                 tripInRequest.Status = TripRequestStatus.Requested;
 
-                new BotLogger<TripRequestInProcess>(request.OperationId, request.FlowId, EventCodes.UpdatingRequestStatusOfPoolerRequest, tripInRequest)
+                new BotLogger<TripRequestInProcess>(request.OperationId, flowId, EventCodes.UpdatingRequestStatusOfPoolerRequest, tripInRequest)
                     .Debug();
 
-                var isUpdateSuccess = TripRequestManager.Instance.UpdateRequestStatus(poolRequest.TripRequest, RequestStatus.InProcess);
+                var isUpdateSuccess = TripRequestManager.Instance.UpdateRequestStatus(flowId, poolRequest.TripRequest, RequestStatus.InProcess);
 
                 if (!isUpdateSuccess)
                 {
-                    new BotLogger<TripRequestInProcess>(request.OperationId, request.FlowId, EventCodes.UpdatRequestStatusOfPoolerRequestFailed, tripInRequest)
+                    new BotLogger<TripRequestInProcess>(request.OperationId, flowId, EventCodes.UpdatRequestStatusOfPoolerRequestFailed, tripInRequest)
                         .Debug();
                     //todo: what to do here? poolers need to be reversed. transaction kind of stuff
                     //break;
                 }
-                new BotLogger<TripRequestInProcess>(request.OperationId, request.FlowId, EventCodes.UpdatedRequestStatusOfPoolerRequest, tripInRequest)
+                new BotLogger<TripRequestInProcess>(request.OperationId, flowId, EventCodes.UpdatedRequestStatusOfPoolerRequest, tripInRequest)
                     .Debug();
             }
-            MessageBus.Instance.Publish(new ReqestOwnerToAcceptPoolersMessage(request.OperationId, request.FlowId)
+            MessageBus.Instance.Publish(new ReqestOwnerToAcceptPoolersMessage(request.OperationId, flowId)
             {
                 PoolersToRequestFor = poolersToRequest,
                 Status = status,

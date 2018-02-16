@@ -1,7 +1,9 @@
 ﻿using Bot.Common;
 using Bot.Data.Models;
 using Bot.Logger;
+using Bot.Worker.Messages;
 using Bot.Worker.Models;
+using System;
 using System.Collections.Generic;
 
 namespace Bot.Worker.Core
@@ -23,11 +25,11 @@ namespace Bot.Worker.Core
             }
         }
 
-        public IList<Commuter> GetPoolersInTrip(TripRequest request)
+        public IList<Commuter> GetPoolersInTrip(GetPoolersInTripMessage message)
         {
-            var commuterRequestProcess = _engineState.CommuterRequestProcessTable[request.Commuter.CommuterId];
+            var commuterRequestProcess = _engineState.CommuterRequestProcessTable[message.TripRequest.Commuter.CommuterId];
 
-            new BotLogger<CommuterRequestProcessModel>(request.OperationId, request.FlowId, EventCodes.GotProcessModel, commuterRequestProcess)
+            new BotLogger<CommuterRequestProcessModel>(message.TripRequest.OperationId, message.MessageId, EventCodes.GotProcessModel, commuterRequestProcess)
                 .Debug();
 
             return commuterRequestProcess.Trip.Passengers;

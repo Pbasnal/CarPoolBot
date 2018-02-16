@@ -14,6 +14,11 @@ namespace Bot.Data.EfModels
         public EfCommuter Owner { get; set; }
         public IList<EfCommuter> Passengers { get; set; }
 
+        public EfTrip()
+        {
+            
+        }
+
         public EfTrip(Trip trip)
         {
             TripId = trip.TripId;
@@ -29,7 +34,7 @@ namespace Bot.Data.EfModels
 
         public Trip GetTrip(Guid operationId, Guid flowId)
         {
-            return new Trip
+            return new Trip(TripId)
             {
                 GoingTo = GoingTo,
                 Owner = Owner.GetCommuter(operationId, flowId),

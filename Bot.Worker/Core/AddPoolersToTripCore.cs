@@ -9,6 +9,7 @@ using Bot.Worker.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bot.Data.DataManagers;
 
 namespace Bot.Worker.Core
 {
@@ -52,7 +53,7 @@ namespace Bot.Worker.Core
             new BotLogger<CommuterRequestProcessModel>(message.OperationId, message.MessageId, EventCodes.AcceptedPoolersRemovedFromProcessModel, commuterRequestProcess)
                 .Debug();
 
-            SetRejectedPoolersStateToInitialized(commuterRequestProcess);
+            SetRejectedPoolersStateToInitialized(message.MessageId, commuterRequestProcess);
             new BotLogger<AddPoolersToTripMessage>(message.OperationId, message.MessageId, EventCodes.RejectedPoolersSetToInitialized, message)
                 .Debug();
 
@@ -65,11 +66,14 @@ namespace Bot.Worker.Core
             {
                 new BotLogger<AddPoolersToTripMessage>(message.OperationId, message.MessageId, EventCodes.AddingMorePoolersToState, message)
                     .Debug();
-                methodResponse = CommonEngineCore.AddPoolersRequestsToState(commuterRequestProcess);
+                methodResponse = CommonEngineCore.AddPoolersRequestsToState(message.MessageId, commuterRequestProcess);
             }
 
             if (methodResponse.ResponseCode == ResponseCodes.SuccessDoNotRetry)
             {
+                TripRequestManager.Instance.UpdateRequestStatus(message.MessageId, message.TripRequest, RequestStatus.InTrip);
+                TripManager.Instance.StartNewTrip(message.MessageId, commuterRequestProcess.Trip);
+
                 MessageBus.Instance.Publish(new TripStartedMessage(message.OperationId, message.MessageId)
                 {
                     Trip = commuterRequestProcess.Trip,
@@ -77,7 +81,7 @@ namespace Bot.Worker.Core
                 });
                 new BotLogger<AddPoolersToTripMessage>(message.OperationId, message.MessageId, EventCodes.MarkingRequestStateInTrip, message)
                     .Debug();
-                TripRequestManager.Instance.UpdateRequestStatus(message.TripRequest, RequestStatus.InTrip);
+                
                 return methodResponse;
             }
             if (methodResponse.ResponseCode == ResponseCodes.SuccessCanRetry)
@@ -102,7 +106,7 @@ namespace Bot.Worker.Core
             {
                 acceptedPoolerRequests.Add(commuterRequestProcess.PoolerRequests[index].TripRequest);
                 commuterRequestProcess.Trip.AddPassenger(commuterRequestProcess.PoolerRequests[index].TripRequest.Commuter);
-                if (TripRequestManager.Instance.UpdateRequestStatus(commuterRequestProcess.PoolerRequests[index].TripRequest, RequestStatus.InTrip))
+                if (!TripRequestManager.Instance.UpdateRequestStatus(message.MessageId, commuterRequestProcess.PoolerRequests[index].TripRequest, RequestStatus.InTrip))
                 {
                     new BotLogger<Tuple<AddPoolersToTripMessage, CommuterRequestProcessModel>>
                     (message.OperationId, message.MessageId, EventCodes.UpdatingRequestStatusFailed, logObject).Error();
@@ -123,12 +127,12 @@ namespace Bot.Worker.Core
             return new MethodResponse<IList<TripRequest>>(acceptedPoolerRequests);
         }
 
-        private void SetRejectedPoolersStateToInitialized(CommuterRequestProcessModel commuterRequestProcess)
+        private void SetRejectedPoolersStateToInitialized(Guid flowId, CommuterRequestProcessModel commuterRequestProcess)
         {
             foreach (var poolRequest in commuterRequestProcess
                 .PoolerRequests.Where(x => x.Status == TripRequestStatus.Requested))
             {
-                TripRequestManager.Instance.UpdateRequestStatus(poolRequest.TripRequest, RequestStatus.Initialized);
+                TripRequestManager.Instance.UpdateRequestStatus(flowId, poolRequest.TripRequest, RequestStatus.Initialized);
                 commuterRequestProcess.PoolerRequests.Remove(poolRequest);
             }
         }

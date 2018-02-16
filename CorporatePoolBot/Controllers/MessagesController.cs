@@ -8,7 +8,7 @@ using System;
 
 namespace CorporatePoolBot
 {
-    [BotAuthentication]
+    //[BotAuthentication]
     public class MessagesController : ApiController
     {
         /// <summary>

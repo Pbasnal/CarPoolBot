@@ -59,7 +59,7 @@ namespace Bot.Worker.Models
             catch (Exception ex)
             {
                 Tuple<TripRequest, IList<Coordinate>> logObject = new Tuple<TripRequest, IList<Coordinate>>(tripRequest, route);
-                new BotLogger<Tuple<TripRequest, IList<Coordinate>>>(tripRequest.OperationId, tripRequest.FlowId, EventCodes.ExceptionWhileaddingRequestToState, logObject, ex)
+                new BotLogger<Tuple<TripRequest, IList<Coordinate>>>(tripRequest.OperationId, Guid.Empty, EventCodes.ExceptionWhileaddingRequestToState, logObject, ex)
                     .Exception();
                 return new MethodResponse(false, ResponseCodes.InvalidInputParameter, ex.Message);
             }

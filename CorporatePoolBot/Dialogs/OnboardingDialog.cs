@@ -8,6 +8,7 @@ using Bot.Data;
 using Bot.Data.Models;
 using Bot.Logger;
 using Bot.Common;
+using Bot.Data.DataManagers;
 
 namespace CorporatePoolBot.Dialogs
 {
@@ -40,12 +41,22 @@ namespace CorporatePoolBot.Dialogs
                 new BotLogger<Activity>(OperationId, OnboardingFlowId, EventCodes.StartingOnboardingProcess, activity)
                     .Debug();
 
-                var commuter = new Commuter(OperationId, OnboardingFlowId);
+                var commuter = new Commuter(OperationId);
                 commuter.CommuterName = activity.From.Name;
                 commuter.MediaId = activity.From.Id;
+                commuter.ChannelId = activity.ChannelId;
                 commuter.CommuterId = Guid.NewGuid();
+                CommuterManager.Instance.AddCommuter(OnboardingFlowId, commuter);
 
-                CommuterManager.Instance.AddCommuter(commuter);
+                var botChannelConfig = new BotChannelConfig(OperationId)
+                {
+                    ChannelId = activity.ChannelId,
+                    BotId = activity.Recipient.Id,
+                    BotName = activity.Recipient.Name,
+                    ServiceUrl = activity.ServiceUrl
+                };
+
+                BotChannelConfigManager.Instance.AddBotChannelConfig(botChannelConfig);
 
                 // should check if the vehicle has been onboarded
                 await context.PostAsync("Do you own a vehicle?(yes/no)");
@@ -59,34 +70,6 @@ namespace CorporatePoolBot.Dialogs
             }
         }
 
-        //private async Task WhatIsYourName(IDialogContext context, IAwaitable<object> result)
-        //{
-        //    try
-        //    {
-        //        var activity = await result as Activity;
-        //        var msgText = activity.Text;
-
-        //        if (string.IsNullOrWhiteSpace(CommuterName))
-        //        {
-        //            if (string.IsNullOrWhiteSpace(msgText))
-        //            {
-        //                await context.PostAsync("What is your Name?");
-        //                context.Wait(WhatIsYourName);
-        //                return;
-        //            }
-        //            var commuter = new Commuter();
-        //            commuter.CommuterName = msgText;
-        //            await context.PostAsync("Do you own a vehicle?(yes/no)");
-        //            context.Wait(DoYouOwnVehicle);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        var s = ex.Message;
-        //        context.Fail(ex);
-        //    }
-        //}
-
         private async Task DoYouOwnVehicle(IDialogContext context, IAwaitable<object> result)
         {
             var activity = await result as Activity;
@@ -94,6 +77,7 @@ namespace CorporatePoolBot.Dialogs
             {
                 new BotLogger<Activity>(OperationId, OnboardingFlowId, EventCodes.AskingForVehicleInformation, activity)
                     .Debug();
+
                 var msgText = activity.Text == null ? string.Empty : activity.Text;
                 var commuter = CommuterManager.Instance.GetCommuter(activity.From.Id).ResultData;
 
@@ -228,7 +212,7 @@ namespace CorporatePoolBot.Dialogs
                                 Message = "Office : " + Office
                             }.Debug();
 
-                            CommuterManager.Instance.AddOfficeOfCommuter(commuter, new Coordinate(17.4318848, 78.34318));
+                            CommuterManager.Instance.AddOfficeOfCommuter(OnboardingFlowId, commuter, new Coordinate(17.4318848, 78.34318));
 
                             new BotLogger<Activity>(OperationId, OnboardingFlowId, EventCodes.OfficeAddedAskForHomeLocation, activity)
                             {
@@ -257,7 +241,7 @@ namespace CorporatePoolBot.Dialogs
                             Message = "Office : " + Office
                         }.Debug();
 
-                        CommuterManager.Instance.AddOfficeOfCommuter(commuter, new Coordinate(17.4318848, 78.34318));
+                        CommuterManager.Instance.AddOfficeOfCommuter(OnboardingFlowId, commuter, new Coordinate(17.4318848, 78.34318));
 
                         new BotLogger<Activity>(OperationId, OnboardingFlowId, EventCodes.OfficeAddedAskForHomeLocation, activity)
                         {
@@ -317,7 +301,7 @@ namespace CorporatePoolBot.Dialogs
 
                     new BotLogger<Commuter>(OperationId, OnboardingFlowId, EventCodes.SettingHomeLocationOfCommuter, commuter)
                     .Debug();
-                    CommuterManager.Instance.AddHouseOfCommuter(commuter, homeCoordinate);
+                    CommuterManager.Instance.AddHouseOfCommuter(OnboardingFlowId, commuter, homeCoordinate);
                 }
                 new BotLogger<FacebookMessage>(OperationId, OnboardingFlowId, EventCodes.OnboardingIsComplete, facebookMessage)
                     .Debug();

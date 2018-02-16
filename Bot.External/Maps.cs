@@ -13,22 +13,22 @@ namespace Bot.External
 {
     public class Maps
     {
-        public IList<Coordinate> GetRoute(TripRequest commuterRequest)
+        public IList<Coordinate> GetRoute(Guid flowId,TripRequest commuterRequest)
         {
             if (commuterRequest.GoingTo == GoingTo.Office)
             {
-                new BotLogger<TripRequest>(commuterRequest.OperationId, commuterRequest.FlowId, EventCodes.GetRouteToOffice, commuterRequest)
+                new BotLogger<TripRequest>(commuterRequest.OperationId, flowId, EventCodes.GetRouteToOffice, commuterRequest)
                     .Debug();
 
-                return GetRoute(commuterRequest.OperationId, commuterRequest.FlowId, commuterRequest.Commuter.HomeCoordinate,
+                return GetRoute(commuterRequest.OperationId, flowId, commuterRequest.Commuter.HomeCoordinate,
                     commuterRequest.Commuter.OfficeCoordinate);
             }
             else
             {
-                new BotLogger<TripRequest>(commuterRequest.OperationId, commuterRequest.FlowId, EventCodes.GetRouteToHome, commuterRequest)
+                new BotLogger<TripRequest>(commuterRequest.OperationId, flowId, EventCodes.GetRouteToHome, commuterRequest)
                     .Debug();
 
-                return GetRoute(commuterRequest.OperationId, commuterRequest.FlowId, commuterRequest.Commuter.OfficeCoordinate,
+                return GetRoute(commuterRequest.OperationId, flowId, commuterRequest.Commuter.OfficeCoordinate,
                     commuterRequest.Commuter.HomeCoordinate);
             }
         }
