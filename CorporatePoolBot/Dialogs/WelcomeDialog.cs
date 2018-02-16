@@ -48,7 +48,7 @@ namespace CorporatePoolBot.Dialogs
                 var methodResponse = userAuthenticator.Authenticate(activity);
                 if (!methodResponse.IsSuccess)
                 {
-                    await context.Forward(new AuthenticationDialog(), WelcomeCommuter, result, CancellationToken.None);
+                    await context.Forward(new AuthenticationDialog(), WelcomeCommuter, activity, CancellationToken.None);
                     new BotLogger<MethodResponse>(OperationId, WelcomeFlowId, EventCodes.UserNotYetOnboarded, methodResponse)
                     .Debug();
 
