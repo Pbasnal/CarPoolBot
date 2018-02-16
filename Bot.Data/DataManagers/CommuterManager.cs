@@ -7,6 +7,7 @@ using Bot.Data.EfModels;
 using Bot.Data.Models;
 using Bot.Logger;
 using Bot.Models.Internal;
+using System.Linq;
 
 namespace Bot.Data.DataManagers
 {
@@ -44,8 +45,8 @@ namespace Bot.Data.DataManagers
 
             commuter.OfficeCoordinate = office;
 
-            var result = CommutersStore.AddCommutersAsync(commuter.OperationId, flowId, new List<Commuter> { commuter }).Result;
-
+            //var result = CommutersStore.AddCommutersAsync(commuter.OperationId, flowId, new List<Commuter> { commuter }).Result;
+            var result = true;
             if (result)
             {
                 commuters.Add(commuter.CommuterId, commuter);
@@ -60,8 +61,8 @@ namespace Bot.Data.DataManagers
             new BotLogger<Commuter>(commuter.OperationId, flowId, EventCodes.AddingCommuterToState, commuter)
                 .Debug();
 
-            var result = CommutersStore.AddCommutersAsync(commuter.OperationId, flowId, new List<Commuter> { commuter }).Result;
-
+            //var result = CommutersStore.AddCommutersAsync(commuter.OperationId, flowId, new List<Commuter> { commuter }).Result;
+            var result = true;
             if (result)
             {
                 commuters.Add(commuter.CommuterId, commuter);
@@ -97,8 +98,8 @@ namespace Bot.Data.DataManagers
             var oldValue = commuter.OfficeCoordinate;
             commuter.OfficeCoordinate = officeCoordinate;
 
-            var result = CommutersStore.UpdateCommutersAsync(commuter.OperationId, flowId, new List<Commuter> { commuter }).Result;
-
+            //var result = CommutersStore.UpdateCommutersAsync(commuter.OperationId, flowId, new List<Commuter> { commuter }).Result;
+            var result = true;
             if (result)
             {
                 new BotLogger<Commuter>(inCommuter.OperationId, flowId, EventCodes.OfficeAddedToDb, commuter)
@@ -137,8 +138,8 @@ namespace Bot.Data.DataManagers
             var oldValue = commuter.HomeCoordinate;
             commuter.HomeCoordinate = homeCoordinate;
 
-            var result = CommutersStore.UpdateCommutersAsync(commuter.OperationId, flowId, new List<Commuter> { commuter }).Result;
-
+            //var result = CommutersStore.UpdateCommutersAsync(commuter.OperationId, flowId, new List<Commuter> { commuter }).Result;
+            var result = true;
             if (result)
             {
                 new BotLogger<Commuter>(inCommuter.OperationId, flowId, EventCodes.HomeAddedToDb, commuter)
@@ -164,14 +165,14 @@ namespace Bot.Data.DataManagers
             if (commuters == null || commuters.Count == 0)
                 return null;
             // later to be used with cache
-            //return commuters[commuterId];
-            var resultCommuters = CommutersStore.GetCommuters(new List<Guid> { commuterId }).Result;
-            if (resultCommuters.Count == 1)
-            {
-                return resultCommuters[0];
-            }
+            return commuters[commuterId];
+            //var resultCommuters = CommutersStore.GetCommuters(new List<Guid> { commuterId }).Result;
+            //if (resultCommuters.Count == 1)
+            //{
+            //    return resultCommuters[0];
+            //}
 
-            return null;
+            //return null;
         }
 
         public MethodResponse<Commuter> GetCommuter(string mediaId)
@@ -179,13 +180,16 @@ namespace Bot.Data.DataManagers
             if (commuters == null || commuters.Count == 0)
                 return new MethodResponse<Commuter>(null);
 
-            var resultCommuters = CommutersStore.GetCommutersForMediaIds(new List<string> { mediaId }).Result;
-            if (resultCommuters.Count == 1)
-            {
-                return new MethodResponse<Commuter>(resultCommuters[0]);
-            }
+            var commuter = commuters.First(x => string.Equals(x.Value.MediaId, mediaId, StringComparison.OrdinalIgnoreCase));
+            return new MethodResponse<Commuter>(commuter.Value);
 
-            return new MethodResponse<Commuter>(null);
+            //var resultCommuters = CommutersStore.GetCommutersForMediaIds(new List<string> { mediaId }).Result;
+            //if (resultCommuters.Count == 1)
+            //{
+            //    return new MethodResponse<Commuter>(resultCommuters[0]);
+            //}
+
+            //return new MethodResponse<Commuter>(null);
         }
     }
 }

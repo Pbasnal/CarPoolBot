@@ -12,12 +12,11 @@
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
-            {
-                components.Dispose();
-            }
         {
+            components.Dispose();
+
             if (disposing && (components != null))
-            base.Dispose(disposing);
+                base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code

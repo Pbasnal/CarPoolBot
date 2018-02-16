@@ -7,6 +7,7 @@ using Bot.External;
 using Bot.Logger;
 using Bot.Common;
 using Bot.Models.Internal;
+using AuthBot.Dialogs;
 
 namespace CorporatePoolBot.Dialogs
 {
@@ -42,15 +43,19 @@ namespace CorporatePoolBot.Dialogs
                 
                 await context.PostAsync(_welcomeNote);
 
+                //await context.Forward(new AuthenticationDialog(), WelcomeCommuter, activity, CancellationToken.None);
+                //context.Done(result);
                 var methodResponse = userAuthenticator.Authenticate(activity);
                 if (!methodResponse.IsSuccess)
                 {
+                    await context.Forward(new AuthenticationDialog(), WelcomeCommuter, result, CancellationToken.None);
                     new BotLogger<MethodResponse>(OperationId, WelcomeFlowId, EventCodes.UserNotYetOnboarded, methodResponse)
                     .Debug();
 
                     await context.PostAsync(methodResponse.ResponseMessage);
                     await context.PostAsync("Starting onboarding process");
-                    await context.Forward(new OnboardingDialog(OperationId, WelcomeFlowId), WelcomeCommuter, activity, CancellationToken.None);
+                    //await context.Forward(new OnboardingDialog(OperationId, WelcomeFlowId), WelcomeCommuter, activity, CancellationToken.None);
+                    context.Done("sf");
                 }
 
                 new BotLogger<MethodResponse>(OperationId, WelcomeFlowId, EventCodes.StartingUserRequest, methodResponse)

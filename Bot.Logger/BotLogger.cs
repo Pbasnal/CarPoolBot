@@ -144,7 +144,7 @@ namespace Bot.Logger
 
         private async void WriteToPermanentStore()
         {
-            await WriteToLogDb();
+            //await WriteToLogDb();
         }
 
         private Task WriteToLogDb()

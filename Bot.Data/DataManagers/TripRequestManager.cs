@@ -80,7 +80,8 @@ namespace Bot.Data.DataManagers
             if (!requestList.Keys.Contains(origin))
                 requestList.Add(origin, new List<TripRequest>());
 
-            var result = tripReuestsStore.AddTripRequestsAsync(request.OperationId, flowId, new List<TripRequest> { request }).Result;
+            //var result = tripReuestsStore.AddTripRequestsAsync(request.OperationId, flowId, new List<TripRequest> { request }).Result;
+            var result = true;
             if (result)
             {
                 new BotLogger<TripRequest>(request.OperationId, flowId, EventCodes.AddingTripRequestToState, request)
@@ -179,7 +180,9 @@ namespace Bot.Data.DataManagers
                 return false;
             }
 
-            if (!tripReuestsStore.UpdateTripRequestAsync(new List<TripRequest> { request }).Result)
+            //var result = tripReuestsStore.UpdateTripRequestAsync(new List<TripRequest> { request }).Result;
+            var result = false;
+            if (result)
             {
                 new BotLogger<TripRequest>(request.OperationId, flowId, EventCodes.RequestDidNotUpdateInStore, tripRequestToUpdate)
                     .Error();
@@ -190,7 +193,7 @@ namespace Bot.Data.DataManagers
             if (status == RequestStatus.InTrip)
             {
                 request.Commuter.Status = CommuterStatus.InTrip;
-                if (commutersStore.UpdateCommutersAsync(request.OperationId, flowId, new List<Commuter> { request.Commuter }).Result)
+                if (true)//(commutersStore.UpdateCommutersAsync(request.OperationId, flowId, new List<Commuter> { request.Commuter }).Result)
                 {
                     tripRequestToUpdate.Commuter.Status = CommuterStatus.InTrip;
                 }
@@ -198,7 +201,7 @@ namespace Bot.Data.DataManagers
             else
             {
                 request.Commuter.Status = CommuterStatus.InTrip;
-                if (commutersStore.UpdateCommutersAsync(request.OperationId, flowId, new List<Commuter> { request.Commuter }).Result)
+                if (true)//(commutersStore.UpdateCommutersAsync(request.OperationId, flowId, new List<Commuter> { request.Commuter }).Result)
                 {
                     tripRequestToUpdate.Commuter.Status = CommuterStatus.InProcess;
                 }

@@ -35,8 +35,8 @@ namespace Bot.Data.DataManagers
 
         public MethodResponse<Trip> StartNewTrip(Guid flowId, Trip trip)
         {
-            var result = TripsStore.AddTripsAsync(trip.OperationId, flowId, new List<Trip> { trip }).Result;
-
+            //var result = TripsStore.AddTripsAsync(trip.OperationId, flowId, new List<Trip> { trip }).Result;
+            var result = true;
             if (result)
             {
                 CarPoolTrip.Add(trip.Owner.CommuterId, trip);

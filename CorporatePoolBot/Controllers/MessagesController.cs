@@ -17,14 +17,21 @@ namespace CorporatePoolBot
         /// </summary>
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
-            if (activity.Type == ActivityTypes.Message)
-            {
-                await Conversation.SendAsync(activity, () => new Dialogs.WelcomeDialog(Guid.NewGuid(), Guid.NewGuid()));
+            try {
+                if (activity.Type == ActivityTypes.Message)
+                {
+                    await Conversation.SendAsync(activity, () => new Dialogs.WelcomeDialog(Guid.NewGuid(), Guid.NewGuid()));
+                }
+                else
+                {
+                    HandleSystemMessage(activity);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                HandleSystemMessage(activity);
+                var str = ex.Message;
             }
+
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
