@@ -24,8 +24,8 @@ namespace Bot.External
             return new MethodResponse
             {
                 IsSuccess = false,
-                ResponseCode = ResponseCodes.SuccessDoNotRetry,
-                ResponseMessage = ResponseMessages.UserAuthenticationSuccessful
+                //ResponseCode = ResponseCodes.,
+                //ResponseMessage = ResponseMessages.UserAuthenticationSuccessful
             };
         }
     }

@@ -12,6 +12,7 @@ namespace Bot.Data.Models
         public CommuterStatus Status { get; set; }
         public string MediaId { get; set; }
         public string ChannelId { get; set; }
+        public string AuthenticationId { get; set; }
 
         public Commuter(Guid operationId) : base(operationId)
         {

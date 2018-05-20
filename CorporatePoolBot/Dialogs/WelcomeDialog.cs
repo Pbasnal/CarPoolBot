@@ -7,14 +7,17 @@ using Bot.External;
 using Bot.Logger;
 using Bot.Common;
 using Bot.Models.Internal;
-using AuthBot.Dialogs;
+using Bot.NewData.DataManagers;
+using Bot.NewData.Enums;
 
 namespace CorporatePoolBot.Dialogs
 {
     [Serializable]
     public class WelcomeDialog : IDialog<object>
     {
-        private string _welcomeNote = "Hey!! :)";
+        private string _greeting = "Hi! Welcome to CorPool";
+        private string _askForRequest = "How may I help you today?";
+
         private UserAuthentication userAuthenticator;
 
         private Guid OperationId { get; set; }
@@ -26,50 +29,39 @@ namespace CorporatePoolBot.Dialogs
             WelcomeFlowId = Guid.NewGuid();
         }
 
-        public Task StartAsync(IDialogContext context)
+        public async Task StartAsync(IDialogContext context)
         {
             userAuthenticator = new UserAuthentication(OperationId, WelcomeFlowId);
             context.Wait(WelcomeCommuter);
-            return Task.CompletedTask;
         }
 
-        private async Task WelcomeCommuter(IDialogContext context, IAwaitable<object> result)
+        private async Task WelcomeCommuter(IDialogContext context, IAwaitable<object> input)
         {
             try
             {
-                var activity = await result as Activity;
-                new BotLogger<Activity>(OperationId, WelcomeFlowId, EventCodes.WelcomeDialogInitiatedForUser, activity)
-                    .Debug();
-                
-                await context.PostAsync(_welcomeNote);
+                var activity = await input as Activity;
+                await context.PostAsync(_greeting);
+                var commuter = Commuters.GetCommuterViaChannelIdAndMediaId(activity.ChannelId, activity.From.Id);
 
-                //await context.Forward(new AuthenticationDialog(), WelcomeCommuter, activity, CancellationToken.None);
-                //context.Done(result);
-                var methodResponse = userAuthenticator.Authenticate(activity);
-                if (!methodResponse.IsSuccess)
+                if (commuter.NextOnboardingStep != NextOnboardingStep.Complete ||
+                    commuter.NextOnboardingStep != NextOnboardingStep.VehicleInformation)
                 {
-                    await context.Forward(new AuthenticationDialog(), WelcomeCommuter, activity, CancellationToken.None);
-                    new BotLogger<MethodResponse>(OperationId, WelcomeFlowId, EventCodes.UserNotYetOnboarded, methodResponse)
-                    .Debug();
-
-                    await context.PostAsync(methodResponse.ResponseMessage);
-                    await context.PostAsync("Starting onboarding process");
-                    //await context.Forward(new OnboardingDialog(OperationId, WelcomeFlowId), WelcomeCommuter, activity, CancellationToken.None);
-                    context.Done("sf");
+                    await context.Forward(new OnboardingDialog(commuter.NextOnboardingStep), WelcomeCommuter, commuter, CancellationToken.None);
                 }
 
-                new BotLogger<MethodResponse>(OperationId, WelcomeFlowId, EventCodes.StartingUserRequest, methodResponse)
-                    .Debug();
-                //check user progress
-                await context.Forward(new RequestDialog(OperationId, WelcomeFlowId), AfterProcessingUserRequest, activity, CancellationToken.None);
+                await context.PostAsync(_askForRequest);
+                context.Wait(GetRequestFromUser);
             }
             catch (Exception ex)
             {
-                new BotLogger<object>(OperationId, WelcomeFlowId, EventCodes.ExceptionWhileWelcomingUser, result, ex)
-                    .Exception();
-
                 context.Fail(ex);
             }
+        }
+
+        public async Task GetRequestFromUser(IDialogContext context, IAwaitable<object> input)
+        {
+            var activity = await input as Activity;
+            await context.Forward(new RequestDialog(OperationId, WelcomeFlowId), AfterProcessingUserRequest, activity, CancellationToken.None);
         }
 
         private async Task AfterProcessingUserRequest(IDialogContext context, IAwaitable<object> result)

@@ -9,6 +9,7 @@ using Bot.Data.Models;
 using Bot.Logger;
 using Bot.Common;
 using Bot.Data.DataManagers;
+using Bot.NewData.Enums;
 
 namespace CorporatePoolBot.Dialogs
 {
@@ -26,12 +27,38 @@ namespace CorporatePoolBot.Dialogs
             OperationId = operationId;
             OnboardingFlowId = flowId;
         }
+        public OnboardingDialog()
+        {
+        }
 
         public Task StartAsync(IDialogContext context)
         {
             context.Wait(StartOnboarding);
             return Task.CompletedTask;
         }
+
+        private async Task CheckNextOnboardingStep(IDialogContext context, IAwaitable<NextOnboardingStep> input)
+        {
+            var nextOnboardingStep = await input;
+
+            switch (nextOnboardingStep)
+            {
+                case NextOnboardingStep.HomeLocation:
+                    await context.PostAsync("Where do you live?"); // this might not be needed if aad is giving this information
+                    context.Wait(WhereDoYouLive);
+                    break;
+                case NextOnboardingStep.OfficeLocation:
+                    await context.PostAsync("Where is your office?"); // this might not be needed if aad is giving this information
+                    context.Wait(SelectYourOffice);
+                    break;
+
+                case NextOnboardingStep.VehicleInformation:
+                    await context.PostAsync("Do you own a vehicle?"); 
+                    context.Wait(DoYouOwnVehicle);
+                    break;
+            }
+        }
+
 
         private async Task StartOnboarding(IDialogContext context, IAwaitable<object> result)
         {

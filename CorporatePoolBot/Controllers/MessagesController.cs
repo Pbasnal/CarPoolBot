@@ -5,10 +5,11 @@ using System.Web.Http;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using System;
+using CorporatePoolBot.Dialogs;
 
 namespace CorporatePoolBot
 {
-    //[BotAuthentication]
+    [BotAuthentication]
     public class MessagesController : ApiController
     {
         /// <summary>
@@ -20,7 +21,7 @@ namespace CorporatePoolBot
             try {
                 if (activity.Type == ActivityTypes.Message)
                 {
-                    await Conversation.SendAsync(activity, () => new Dialogs.WelcomeDialog(Guid.NewGuid(), Guid.NewGuid()));
+                    await Conversation.SendAsync(activity, () => new AuthenticationDialog());
                 }
                 else
                 {

@@ -8,6 +8,7 @@ using Bot.Data.Models;
 using Bot.Logger;
 using Bot.Models.Internal;
 using System.Linq;
+using Bot.Models.Microsoft;
 
 namespace Bot.Data.DataManagers
 {
@@ -79,6 +80,19 @@ namespace Bot.Data.DataManagers
             return new MethodResponse<Commuter>(null);
         }
 
+        public MethodResponse<Commuter> AddCommuter(UserInfo userInfo)
+        {
+            var newCommuter = new Commuter(Guid.NewGuid())
+            {
+                AuthenticationId = userInfo.id,
+                CommuterName = userInfo.givenName,
+                CommuterId = Guid.NewGuid()                
+            };
+            commuters.Add(newCommuter.CommuterId, newCommuter);
+
+            return new MethodResponse<Commuter>(newCommuter);
+        }
+
         public MethodResponse<Commuter> AddOfficeOfCommuter(Guid flowId, Commuter inCommuter, Coordinate officeCoordinate)
         {
             Commuter commuter;
@@ -111,7 +125,7 @@ namespace Bot.Data.DataManagers
                 .Debug();
                 return new MethodResponse<Commuter>(commuter);
             }
-            
+
             //revertiung if db didn't get updated
             new BotLogger<Tuple<Commuter, Coordinate>>(inCommuter.OperationId, flowId, EventCodes.ErrorWhileAddingOfficeLocationToDbRevertingChanges, methodParameterLogObject)
                 .Error();

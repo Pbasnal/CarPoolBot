@@ -50,6 +50,7 @@
     <Compile Include="Internal\ResponseCodes.cs" />
     <Compile Include="Internal\MethodResponse.cs" />
     <Compile Include="Internal\ResponseMessages.cs" />
+    <Compile Include="Microsoft\UserInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

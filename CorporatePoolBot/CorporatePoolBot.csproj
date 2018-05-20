@@ -228,6 +228,10 @@
       <Project>{11E1325C-C459-45C9-A5BF-BABD9D7FE201}</Project>
       <Name>Bot.Models</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Bot.NewData\Bot.NewData.csproj">
+      <Project>{16CC7B52-7709-4EE9-AF2C-4E447E02A523}</Project>
+      <Name>Bot.NewData</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bot.Worker\Bot.Worker.csproj">
       <Project>{B1E431A0-4960-4E9F-8575-94915738A1BA}</Project>
       <Name>Bot.Worker</Name>

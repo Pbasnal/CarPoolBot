@@ -7,6 +7,10 @@
         public const string UserDoesNotExists = "UserDoesNotExists";
         public const string InvalidArguments = "InvalidArguments";
 
+        //Bot.Authentication
+        public const string AuthenticationStartedForuser = "AuthenticationStartedForuser";
+
+
         //Bot.Welcome
         public const string WelcomeDialogInitiatedForUser = "WelcomeDialogInitiatedForUser";
         public const string UserNotYetOnboarded = "UserNotYetOnboarded";

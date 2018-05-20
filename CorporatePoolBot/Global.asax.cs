@@ -1,4 +1,6 @@
-﻿using Bot.Worker;
+﻿using AuthBot.Models;
+using Bot.Worker;
+using System.Configuration;
 using System.Web.Http;
 
 namespace CorporatePoolBot
@@ -9,6 +11,13 @@ namespace CorporatePoolBot
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
             HandlerInitializer.CreateAllHandlers();
+
+            AuthSettings.RedirectUrl = ConfigurationManager.AppSettings["ActiveDirectory.RedirectUrl"];
+            AuthSettings.Mode = ConfigurationManager.AppSettings["ActiveDirectory.Mode"];
+            AuthSettings.EndpointUrl = ConfigurationManager.AppSettings["ActiveDirectory.EndpointUrl"];
+            AuthSettings.ClientId = ConfigurationManager.AppSettings["ActiveDirectory.ClientId"];
+            AuthSettings.ClientSecret = ConfigurationManager.AppSettings["ActiveDirectory.ClientSecret"];
+            AuthSettings.Tenant = ConfigurationManager.AppSettings["ActiveDirectory.Tenant"];
         }
     }
 }

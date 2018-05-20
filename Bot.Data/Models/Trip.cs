@@ -12,7 +12,10 @@ namespace Bot.Data.Models
 
         public GoingTo GoingTo { get; set; }
         public Commuter Owner { get; set; }
+        public TripRequest OwnerRequest { get; set; }
         public IList<Commuter> Passengers { get; set; }
+        public IList<TripRequest> TripRequests { get; set; }
+
 
         public Trip(Guid operationId) : base(operationId)
         {
